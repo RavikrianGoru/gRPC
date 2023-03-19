@@ -1,0 +1,19 @@
+syntax="proto3";
+
+option java_package="com.rk.modeles";
+option  java_multiple_files=true;
+
+import "google/protobuf/wrappers.proto";
+
+message Student
+{
+  google.protobuf.StringValue name=1;
+  google.protobuf.BytesValue address=2;
+  google.protobuf.BoolValue isStudying=3;
+  google.protobuf.Int32Value rollNo=4;
+  google.protobuf.Int64Value phoneNo=5;
+  google.protobuf.FloatValue feePaid=6;
+  google.protobuf.DoubleValue pendingFee=7;
+  google.protobuf.UInt32Value rank=8;
+  google.protobuf.UInt64Value maxRank=9;
+}

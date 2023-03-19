@@ -1,47 +1,3 @@
-1) Problem Statement:
-	Monolitic pplications:
-		Whole application as a single unit.
-		+ Fast processing as local calls
-		- Too big to complect to manage.
-	MocriServices:
-		Split a bg monolithic app into multiple sub services based on business sub domain.
-		Services talk one and another.
-		Exchange data in json format over http.
-Problems in REST:
-	1) Request & Response protocols
-		Json usage over http 1.1 protocol.
-		TCP connection: 3 message exchanges required form TCP connection(3 Way handshae).
-		Need to wait response back before sending the next request or new TCP connection required.
-	2) Headers:
-		HTTP is stateless protocol so, every request carries headers(cookies, user agent,...), body(data) in plain text format.
-	3) Serialization & Deserialization 
-		If client App has two send personal details in request;
-		Create Person Object/json serialize data and send it over n/w then Server receive the data & dserialize the data.
-		Machine understand the binary data . The Data in plain text format consumes more CPU, Memory....
-	4) API Contract:
-		There is no strict type/contract in json.
-		Person(fname) can be mapped to Person(f_name)
-		Client has to share Models dependency. or has to share openAPI but not standard.
-	5) Client SDK:
-		Server' service development in java, can not send library for other languages like JavaScript, Python...etc.
-	6) Stubby:RPC f/w from Google, support cross-platform but tigtly coupled with their infrastructure. Can process10 nillions reqs per sec,
-	7) gRPC: Developed by Google, inspired by stubby, adopded by netfix, microsoft. Belongs to CNCF.
-	   gRPC: Remote procedure calls for inter micro service communication. Looks like method call in distributed applications.
-2) HTTP2 vs HTTP1.1:
-	HTTP 1.1 : Introduced in 1997, baseline.
-	HTTP2 : Multiplexing, Binary, Header compression, Flow Control.
-	        Multiplexing: one TCP connection is enought to get multiple responses.
-			Flow Control: Sender will not send too much infor when receier can not handle it.
-		gRPC uses HTTP2 protocol by default. can be used any protocol.
-		Protobuf: it is an IDL-Interface Description language for gRPC API. Strict typing, DTO, Service definition, Language-agonstic, Auto-Generated binding for multiple languages.
-				  Greate for Mobile apps.
-3) gRPC bs Rest:
-	REST : architecture style, resource oriented(Book,Person....), [ JSON + HTTP1.1 ]
-	gRPC: a RPC f/w, more flexible & action oriented, specific to inter-service communication.
-* Apache Bencher: Performance test to generate load: Good to learn.
-* Apache Activity: BPMN, Good to learn.
-
-===============================
 Protocol Buffer:
 	IDL (Interface Description Lanaguage for gRPC API. Like WSDL for SOAP....etc
 	Platform Neutral, Language Neutral, Serializing/Deserializing structured data, very fast/optimized for interservice communication.
@@ -856,6 +812,95 @@ Protocol Buffer:
 			PHONE_LOGIN : phone_no: "1234567890"
 			otp: "556644"
 			----
+	22) Proto Wrapper types
+		Proto has wrapper types can be imported as below in our .proto file
+		1) Create student.proto as below
+		----
+			syntax="proto3";
+			
+			option java_package="com.rk.modeles";
+			option  java_multiple_files=true;
+			
+			import "google/protobuf/wrappers.proto";
+			
+			message Student
+			{
+			  google.protobuf.StringValue name=1;
+			  google.protobuf.BytesValue address=2;
+			  google.protobuf.BoolValue isStudying=3;
+			  google.protobuf.Int32Value rollNo=4;
+			  google.protobuf.Int64Value phoneNo=5;
+			  google.protobuf.FloatValue feePaid=6;
+			  google.protobuf.DoubleValue pendingFee=7;
+			  google.protobuf.UInt32Value rank=8;
+			  google.protobuf.UInt64Value maxRank=9;
+			}
+		----
+		2) Create StudentWrapperDemo class to test
+		----
+			package in.rk.protobuf;
+			
+			import com.google.protobuf.*;
+			import com.rk.modeles.Student;
+			
+			import java.nio.charset.Charset;
+			
+			public class StudentWrapperDemo {
+			    public static void main(String[] args) {
+			        Student s= Student.newBuilder()
+			                .setName(StringValue.newBuilder().setValue("ravi").build())
+			                .setAddress(BytesValue.newBuilder().setValue(ByteString.copyFrom("Butchaiah thota, gnt", Charset.defaultCharset())).build())
+			                .setIsStudying(BoolValue.newBuilder().setValue(true).build())
+			                .setRollNo(Int32Value.newBuilder().setValue(1001).build())
+			                .setPhoneNo(Int64Value.newBuilder().setValue(9999999999L).build())
+			                .setFeePaid(FloatValue.newBuilder().setValue(50000.00f).build())
+			                .setPendingFee(DoubleValue.newBuilder().setValue(20000.00).build())
+			                .setRank(UInt32Value.newBuilder().setValue(1234567890).buildPartial())
+			                .setMaxRank(UInt64Value.newBuilder().setValue(9999999999999l).buildPartial())
+			                .build();
+			
+			        System.out.println(s);
+			        if(s.hasName())
+			            System.out.println(s.getName());
+			        if(s.hasRank())
+			            System.out.println(s.getRank());
+			    }
+			}
+		----
+		3) o/p:
+		----
+			name {
+			  value: "ravi"
+			}
+			address {
+			  value: "Butchaiah thota, gnt"
+			}
+			isStudying {
+			  value: true
+			}
+			rollNo {
+			  value: 1001
+			}
+			phoneNo {
+			  value: 9999999999
+			}
+			feePaid {
+			  value: 50000.0
+			}
+			pendingFee {
+			  value: 20000.0
+			}
+			rank {
+			  value: 1234567890
+			}
+			maxRank {
+			  value: 9999999999999
+			}
+			
+			value: "ravi"
+			
+			value: 1234567890
+			----		
 		
 			
 		
