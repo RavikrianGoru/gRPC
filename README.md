@@ -1,4 +1,4 @@
-#gRPC Introduction
+# gRPC Introduction
 
 ### Problem Statement
     Monolithic applications:
@@ -9,7 +9,7 @@
 		Split a bg monolithic app into multiple sub services based on business sub domain.
 		Services talk one and another.
 		Exchange data in json format over http.
-###Problems in REST:
+### Problems in REST:
 	1) Request & Response protocols
 		Json usage over http 1.1 protocol.
 		TCP connection: 3 messages exchange required form TCP connection(3 Way handshake).
