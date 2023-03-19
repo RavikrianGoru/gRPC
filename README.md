@@ -807,384 +807,396 @@ year: 2000
 }
 UNNOWN
 ```
-	21) Proto oneof Demo
-		oneof is a special case one of many(like radio button)
-		
-		1) Create email-login.proto, phone-login.proto under common
-			----
-			syntax="proto3";
+18. Proto oneof Demo
+```oneof is a special case one of many(like radio button)```
+Create email-login.proto, phone-login.proto under common
+```
+syntax="proto3";
+
+option java_multiple_files=true;
+option java_package="in.rk.models";
+
+package common;
+
+message EmailLogin
+{
+	string email_id=1;
+	string password=2;
+}
+
+```
+```
+syntax="proto3";
+
+package common;
+
+option java_multiple_files=true;
+option java_package="in.rk.models";
+
+message PhoneLogin
+{
+	string phone_no=1;
+	string otp=2;
+}		
+```
+Create credentials.proto under proto
+```
+syntax="proto3";
+
+option java_multiple_files=true;
+option java_package="in.rk.models";
+
+import "common/email_login.proto";
+import "common/phone_login.proto";
+
+message Credentials
+{
+	oneof mode
+	{
+		common.EmailLogin email_login=1;
+		common.PhoneLogin phone_login=2;
+	}
+}
+
+```
+Create OneOfDemoCredentials class to test oneof.
+```
+package in.rk.protobuf;
+
+import in.rk.models.Credentials;
+import in.rk.models.EmailLogin;
+import in.rk.models.PhoneLogin;
+
+public class OneOfDemoCredentials {
+	public static void main(String[] args)
+	{
+		EmailLogin emailLogin= EmailLogin.newBuilder()
+				.setEmailId("nobody@gmail.com")
+				.setPassword("admin123")
+				.build();
+		PhoneLogin phoneLogin= PhoneLogin.newBuilder()
+				.setPhoneNo("1234567890")
+				.setOtp("556644")
+				.build();
+		System.out.println(emailLogin);
+		System.out.println(phoneLogin);
+		Credentials cred= Credentials.newBuilder()
+				.setEmailLogin(emailLogin)
+				.setPhoneLogin(phoneLogin)//latest will be taken
+				.build();
+
+		login(cred);
+	}
+	private static void login(Credentials cred)
+	{
+		System.out.println("Mode Case: "+cred.getModeCase());
+		System.out.println("cred.hasEmailLogin(): "+cred.hasEmailLogin());
+		System.out.println("cred.hasPhoneLogin(): "+cred.hasPhoneLogin());
+		System.out.println("cred.getEmailLogin(): "+cred.getEmailLogin());
+		System.out.println("cred.getPhoneLogin(): "+cred.getPhoneLogin());
+		switch(cred.getModeCase())
+		{
+			case EMAIL_LOGIN:
+				System.out.println(cred.getModeCase()+" : "+cred.getEmailLogin());
+				break;
+			case PHONE_LOGIN:
+				System.out.println(cred.getModeCase()+" : "+cred.getPhoneLogin());
+				break;
+			default:
+				break;
+		}
+	}
+}
+
+```
+Output
+```
+email_id: "nobody@gmail.com"
+password: "admin123"
+
+phone_no: "1234567890"
+otp: "556644"
+
+Mode Case: PHONE_LOGIN
+cred.hasEmailLogin(): false
+cred.hasPhoneLogin(): true
+cred.getEmailLogin(): 
+cred.getPhoneLogin(): phone_no: "1234567890"
+otp: "556644"
+
+PHONE_LOGIN : phone_no: "1234567890"
+otp: "556644"
+```
+
+19. Proto Wrapper types
+* Proto has wrapper types can be imported as below in our .proto file
+Create student.proto as below
+```
+syntax="proto3";
+
+option java_package="com.rk.modeles";
+option  java_multiple_files=true;
+
+import "google/protobuf/wrappers.proto";
+
+message Student
+{
+  google.protobuf.StringValue name=1;
+  google.protobuf.BytesValue address=2;
+  google.protobuf.BoolValue isStudying=3;
+  google.protobuf.Int32Value rollNo=4;
+  google.protobuf.Int64Value phoneNo=5;
+  google.protobuf.FloatValue feePaid=6;
+  google.protobuf.DoubleValue pendingFee=7;
+  google.protobuf.UInt32Value rank=8;
+  google.protobuf.UInt64Value maxRank=9;
+}
+
+```
+Create StudentWrapperDemo class to test
+```
+package in.rk.protobuf;
+
+import com.google.protobuf.*;
+import com.rk.modeles.Student;
+
+import java.nio.charset.Charset;
+
+public class StudentWrapperDemo {
+    public static void main(String[] args) {
+        Student s= Student.newBuilder()
+                .setName(StringValue.newBuilder().setValue("ravi").build())
+                .setAddress(BytesValue.newBuilder().setValue(ByteString.copyFrom("Butchaiah thota, gnt", Charset.defaultCharset())).build())
+                .setIsStudying(BoolValue.newBuilder().setValue(true).build())
+                .setRollNo(Int32Value.newBuilder().setValue(1001).build())
+                .setPhoneNo(Int64Value.newBuilder().setValue(9999999999L).build())
+                .setFeePaid(FloatValue.newBuilder().setValue(50000.00f).build())
+                .setPendingFee(DoubleValue.newBuilder().setValue(20000.00).build())
+                .setRank(UInt32Value.newBuilder().setValue(1234567890).buildPartial())
+                .setMaxRank(UInt64Value.newBuilder().setValue(9999999999999l).buildPartial())
+                .build();
+
+        System.out.println(s);
+        if(s.hasName())
+            System.out.println(s.getName());
+        if(s.hasRank())
+            System.out.println(s.getRank());
+    }
+}
+```
+Output
+```
+name {
+  value: "ravi"
+}
+address {
+  value: "Butchaiah thota, gnt"
+}
+isStudying {
+  value: true
+}
+rollNo {
+  value: 1001
+}
+phoneNo {
+  value: 9999999999
+}
+feePaid {
+  value: 50000.0
+}
+pendingFee {
+  value: 20000.0
+}
+rank {
+  value: 1234567890
+}
+maxRank {
+  value: 9999999999999
+}
+
+value: "ravi"
+
+value: 1234567890
+```
+20. Proto Filed numbers 1 to 2^29 -1
+* Each field is assigned with unique number
+* 1 is the smallest number, 2^29 -1 is the largest number.
+* 0 is the smallest for enum(Special case)
+* 1-15 for frequently used fields.
+* Do not reorder the fields once it is in use.
+* Adding and Removing fields(use reserved keyword for fields & numbers) will not break old proto.
+* Renaming is ok. but be cautious.
+* Changing int32 to int64 is OK.
+		   int64 to int32 may cause issue.
+* Keep the protos as separate maven module and add then as dependencies in other modules.
+```
+1-15				--> 1 byte [Apply on frequently used fields]
+16-2014				--> 2 bytes 
+19000-19999			--> Reserved for proto internal usage.
+
+```
 	
-			option java_multiple_files=true;
-			option java_package="in.rk.models";
-			
-			package common;
-			
-			message EmailLogin
-			{
-			string email_id=1;
-			string password=2;
-			}
-			----
-			syntax="proto3";
-			
-			package common;
-			
-			option java_multiple_files=true;
-			option java_package="in.rk.models";
-			
-			message PhoneLogin
-			{
-			string phone_no=1;
-			string otp=2;
-			}		
-			----
-		2) Create credentials.proto under proto
-			----
-			syntax="proto3";
-			
-			option java_multiple_files=true;
-			option java_package="in.rk.models";
-			
-			import "common/email_login.proto";
-			import "common/phone_login.proto";
-			
-			message Credentials
-			{
-			
-			oneof mode
-			{
-				common.EmailLogin email_login=1;
-				common.PhoneLogin phone_login=2;
-			}
-			}
-			----
-		3) Create OneOfDemoCredentials class to test oneof.
-			----
-			package in.rk.protobuf;
-			
-			import in.rk.models.Credentials;
-			import in.rk.models.EmailLogin;
-			import in.rk.models.PhoneLogin;
-			
-			public class OneOfDemoCredentials {
-				public static void main(String[] args)
-				{
-					EmailLogin emailLogin= EmailLogin.newBuilder()
-							.setEmailId("nobody@gmail.com")
-							.setPassword("admin123")
-							.build();
-					PhoneLogin phoneLogin= PhoneLogin.newBuilder()
-							.setPhoneNo("1234567890")
-							.setOtp("556644")
-							.build();
-					System.out.println(emailLogin);
-					System.out.println(phoneLogin);
-					Credentials cred= Credentials.newBuilder()
-							.setEmailLogin(emailLogin)
-							.setPhoneLogin(phoneLogin)//latest will be taken
-							.build();
-			
-					login(cred);
-				}
-				private static void login(Credentials cred)
-				{
-					System.out.println("Mode Case: "+cred.getModeCase());
-					System.out.println("cred.hasEmailLogin(): "+cred.hasEmailLogin());
-					System.out.println("cred.hasPhoneLogin(): "+cred.hasPhoneLogin());
-					System.out.println("cred.getEmailLogin(): "+cred.getEmailLogin());
-					System.out.println("cred.getPhoneLogin(): "+cred.getPhoneLogin());
-					switch(cred.getModeCase())
-					{
-						case EMAIL_LOGIN:
-							System.out.println(cred.getModeCase()+" : "+cred.getEmailLogin());
-							break;
-						case PHONE_LOGIN:
-							System.out.println(cred.getModeCase()+" : "+cred.getPhoneLogin());
-							break;
-						default:
-							break;
-					}
-				}
-			}
-			----
-		4) o/p:
-			----
-			email_id: "nobody@gmail.com"
-			password: "admin123"
-			
-			phone_no: "1234567890"
-			otp: "556644"
-			
-			Mode Case: PHONE_LOGIN
-			cred.hasEmailLogin(): false
-			cred.hasPhoneLogin(): true
-			cred.getEmailLogin(): 
-			cred.getPhoneLogin(): phone_no: "1234567890"
-			otp: "556644"
-			
-			PHONE_LOGIN : phone_no: "1234567890"
-			otp: "556644"
-			----
-	22) Proto Wrapper types
-		Proto has wrapper types can be imported as below in our .proto file
-		1) Create student.proto as below
-		----
-			syntax="proto3";
-			
-			option java_package="com.rk.modeles";
-			option  java_multiple_files=true;
-			
-			import "google/protobuf/wrappers.proto";
-			
-			message Student
-			{
-			  google.protobuf.StringValue name=1;
-			  google.protobuf.BytesValue address=2;
-			  google.protobuf.BoolValue isStudying=3;
-			  google.protobuf.Int32Value rollNo=4;
-			  google.protobuf.Int64Value phoneNo=5;
-			  google.protobuf.FloatValue feePaid=6;
-			  google.protobuf.DoubleValue pendingFee=7;
-			  google.protobuf.UInt32Value rank=8;
-			  google.protobuf.UInt64Value maxRank=9;
-			}
-		----
-		2) Create StudentWrapperDemo class to test
-		----
-			package in.rk.protobuf;
-			
-			import com.google.protobuf.*;
-			import com.rk.modeles.Student;
-			
-			import java.nio.charset.Charset;
-			
-			public class StudentWrapperDemo {
-			    public static void main(String[] args) {
-			        Student s= Student.newBuilder()
-			                .setName(StringValue.newBuilder().setValue("ravi").build())
-			                .setAddress(BytesValue.newBuilder().setValue(ByteString.copyFrom("Butchaiah thota, gnt", Charset.defaultCharset())).build())
-			                .setIsStudying(BoolValue.newBuilder().setValue(true).build())
-			                .setRollNo(Int32Value.newBuilder().setValue(1001).build())
-			                .setPhoneNo(Int64Value.newBuilder().setValue(9999999999L).build())
-			                .setFeePaid(FloatValue.newBuilder().setValue(50000.00f).build())
-			                .setPendingFee(DoubleValue.newBuilder().setValue(20000.00).build())
-			                .setRank(UInt32Value.newBuilder().setValue(1234567890).buildPartial())
-			                .setMaxRank(UInt64Value.newBuilder().setValue(9999999999999l).buildPartial())
-			                .build();
-			
-			        System.out.println(s);
-			        if(s.hasName())
-			            System.out.println(s.getName());
-			        if(s.hasRank())
-			            System.out.println(s.getRank());
-			    }
-			}
-		----
-		3) o/p:
-		----
-			name {
-			  value: "ravi"
-			}
-			address {
-			  value: "Butchaiah thota, gnt"
-			}
-			isStudying {
-			  value: true
-			}
-			rollNo {
-			  value: 1001
-			}
-			phoneNo {
-			  value: 9999999999
-			}
-			feePaid {
-			  value: 50000.0
-			}
-			pendingFee {
-			  value: 20000.0
-			}
-			rank {
-			  value: 1234567890
-			}
-			maxRank {
-			  value: 9999999999999
-			}
-			
-			value: "ravi"
-			
-			value: 1234567890
-			----		
-	23) Proto Filed numbers 1 to 2^29 -1
-		* Each field is assigned with unique number
-		* 1 is the smallest number, 2^29 -1 is the largest number.
-		* 0 is the smallest for enum(Special case)
-		* 1-15 for frequently used fields.
-		* Do not reorder the fields once it is in use.
-		* Adding and Removing fields(use reserved keyword for fields & numbers) will not break old proto.
-		* Renaming is ok. but be cautious.
-		* Changing int32 to int64 is OK.
-				   int64 to int32 may cause issue.
-		* Keep the protos as separate maven module and add then as dependencies in other modules.
-		# 1-15					--> 1 byte [Apply on frequently used fields]
-		# 16-2014				--> 2 bytes 
-		# 19000-19999			--> Reserved for proto internal usage.
-	24) Message version compatibility
-		Case-1: What happens when serialized message(version) mismatche while deserializing?
-		Usually, we must use the same object while serialization & deserializion.
-				 but i used different classes while deserializion as no issue during test.
-		1) Create television.proto files as below
-		----
-			syntax="proto3";
-			option java_multiple_files=true;
-			option java_package="in.rk.models";
-			
-			//v1- brand(string),size(int32),make(int32)
-			message Television1
-			{
-			  string brand=1;
-			  int32 size=2;
-			  int32 make=3;
-			}
-			
-			//v2- brand(string),size(int32),made(int32)
-			//renamed make-->made
-			message Television2
-			{
-			  string brand=1;
-			  int32 size=2;
-			  int32 made=3;
-			}
-			
-			//v3- brand(string),size(int32)
-			//removed size: improper way: wrong
-			message Television3
-			{
-			  string brand=1;
-			  int32 made=2;
-			}
-			
-			//v4- brand(string),size(int32)
-			//removed size: Proper way
-			message Television4
-			{
-			  string brand=1;
-			  reserved 2;
-			  reserved "size";
-			  int32 made=3;
-			}
-			
-			//v5- brand(string),size(int32),make(int32),price(int32)
-			//added price
-			message Television5
-			{
-			  string brand=1;
-			  int32 size=2;
-			  int32 make=3;
-			  int32 price=4;
-			}
-			
-			//v6- brand(string),size(string),make(int32)
-			// type change for size(int32 to string)
-			message Television6
-			{
-			  string brand=1;
-			  string size=2;
-			  int32 make=3;
-			}
-		----		
-		2) Create TelevisionVersionCompatibilityDemo class to test
-		----
-			package in.rk.protobuf;
-			
-			import in.rk.models.*;
-			
-			import java.io.IOException;
-			import java.nio.file.Files;
-			import java.nio.file.Path;
-			import java.nio.file.Paths;
-			
-			public class TelevisionVersionCompatibilityDemo {
-			    public static void main(String[] args) throws IOException {
-			        Television1 t1= Television1.newBuilder()
-			                .setBrand("Sony")
-			                .setSize(22)
-			                .setMake(2000)
-			                .build();
-			        //ser
-			        Path path= Paths.get("t_v1.ser");
-			        Files.write(path,t1.toByteArray());
-			        //deser
-			        byte[] bytes = Files.readAllBytes(path);
-			        Television1 t11=Television1.parseFrom(bytes);
-			        System.out.println("//v1- brand(string),size(int32),make(int32)");
-			        System.out.println("Television1 v1:"+t11);
-			
-			
-			        System.out.println("//v2- brand(string),size(int32),made(int32)");
-			        System.out.println("//renamed make-->made");
-			        Television2 t12=Television2.parseFrom(bytes);
-			        System.out.println("Television2 v2:"+t12);
-			
-			        System.out.println("//v3- brand(string),size(int32)");
-			        System.out.println("//removed size: improper way: wrong");
-			        Television3 t13= Television3.parseFrom(bytes);
-			        System.out.println("Television3 v3:"+t13);
-			
-			        System.out.println("//v4- brand(string),size(int32)");
-			        System.out.println("//remove size:Proper way");
-			        Television4 t14= Television4.parseFrom(bytes);
-			        System.out.println("Television4 v4:"+t14);
-			
-			        System.out.println("//v5- brand(string),size(int32),make(int32),price(int32)");
-			        System.out.println("//added price");
-			        Television5 t15= Television5.parseFrom(bytes);
-			        System.out.println("Television5 v5:"+t15);
-			
-			        System.out.println("//v6- brand(string),size(string),make(int32)");
-			        System.out.println("// type change for size(int32 to string)");// incompatable types but it gives output 2:22 unable to map size.
-			        Television6 t16= Television6.parseFrom(bytes);
-			        System.out.println("Television6 v6:"+t16);
-			
-			
-			    }
-			}
-		----
-		3) o/p:
-		----
-			//v1- brand(string),size(int32),make(int32)
-			Television1 v1:brand: "Sony"
-			size: 22
-			make: 2000
-			
-			//v2- brand(string),size(int32),made(int32)
-			//renamed make-->made
-			Television2 v2:brand: "Sony"
-			size: 22
-			made: 2000
-			
-			//v3- brand(string),size(int32)
-			//removed size: improper way: wrong
-			Television3 v3:brand: "Sony"
-			made: 22
-			3: 2000
-			
-			//v4- brand(string),size(int32)
-			//remove size:Proper way
-			Television4 v4:brand: "Sony"
-			made: 2000
-			2: 22
-			
-			//v5- brand(string),size(int32),make(int32),price(int32)
-			//added price
-			Television5 v5:brand: "Sony"
-			size: 22
-			make: 2000
-			
-			//v6- brand(string),size(string),make(int32)
-			// type change for size(int32 to string)
-			Television6 v6:brand: "Sony"
-			make: 2000
-			2: 22
-		----		
-	25) 	
-		
+21 Message version compatibility
+```
+Case-1: What happens when serialized message(version) mismatche while deserializing?
+	Usually, we must use the same object while serialization & deserializion.
+			 but i used different classes while deserializion as no issue during test.
+```
+
+Create television.proto files as below
+
+```
+syntax="proto3";
+option java_multiple_files=true;
+option java_package="in.rk.models";
+
+//v1- brand(string),size(int32),make(int32)
+message Television1
+{
+  string brand=1;
+  int32 size=2;
+  int32 make=3;
+}
+
+//v2- brand(string),size(int32),made(int32)
+//renamed make-->made
+message Television2
+{
+  string brand=1;
+  int32 size=2;
+  int32 made=3;
+}
+
+//v3- brand(string),size(int32)
+//removed size: improper way: wrong
+message Television3
+{
+  string brand=1;
+  int32 made=2;
+}
+
+//v4- brand(string),size(int32)
+//removed size: Proper way
+message Television4
+{
+  string brand=1;
+  reserved 2;
+  reserved "size";
+  int32 made=3;
+}
+
+//v5- brand(string),size(int32),make(int32),price(int32)
+//added price
+message Television5
+{
+  string brand=1;
+  int32 size=2;
+  int32 make=3;
+  int32 price=4;
+}
+
+//v6- brand(string),size(string),make(int32)
+// type change for size(int32 to string)
+message Television6
+{
+  string brand=1;
+  string size=2;
+  int32 make=3;
+}
+```
+Create TelevisionVersionCompatibilityDemo class to test
+```
+package in.rk.protobuf;
+
+import in.rk.models.*;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+public class TelevisionVersionCompatibilityDemo {
+    public static void main(String[] args) throws IOException {
+        Television1 t1= Television1.newBuilder()
+                .setBrand("Sony")
+                .setSize(22)
+                .setMake(2000)
+                .build();
+        //ser
+        Path path= Paths.get("t_v1.ser");
+        Files.write(path,t1.toByteArray());
+        //deser
+        byte[] bytes = Files.readAllBytes(path);
+        Television1 t11=Television1.parseFrom(bytes);
+        System.out.println("//v1- brand(string),size(int32),make(int32)");
+        System.out.println("Television1 v1:"+t11);
+
+
+        System.out.println("//v2- brand(string),size(int32),made(int32)");
+        System.out.println("//renamed make-->made");
+        Television2 t12=Television2.parseFrom(bytes);
+        System.out.println("Television2 v2:"+t12);
+
+        System.out.println("//v3- brand(string),size(int32)");
+        System.out.println("//removed size: improper way: wrong");
+        Television3 t13= Television3.parseFrom(bytes);
+        System.out.println("Television3 v3:"+t13);
+
+        System.out.println("//v4- brand(string),size(int32)");
+        System.out.println("//remove size:Proper way");
+        Television4 t14= Television4.parseFrom(bytes);
+        System.out.println("Television4 v4:"+t14);
+
+        System.out.println("//v5- brand(string),size(int32),make(int32),price(int32)");
+        System.out.println("//added price");
+        Television5 t15= Television5.parseFrom(bytes);
+        System.out.println("Television5 v5:"+t15);
+
+        System.out.println("//v6- brand(string),size(string),make(int32)");
+        System.out.println("// type change for size(int32 to string)");// incompatable types but it gives output 2:22 unable to map size.
+        Television6 t16= Television6.parseFrom(bytes);
+        System.out.println("Television6 v6:"+t16);
+
+
+    }
+}
+
+```
+Output
+
+```
+//v1- brand(string),size(int32),make(int32)
+Television1 v1:brand: "Sony"
+size: 22
+make: 2000
+
+//v2- brand(string),size(int32),made(int32)
+//renamed make-->made
+Television2 v2:brand: "Sony"
+size: 22
+made: 2000
+
+//v3- brand(string),size(int32)
+//removed size: improper way: wrong
+Television3 v3:brand: "Sony"
+made: 22
+3: 2000
+
+//v4- brand(string),size(int32)
+//remove size:Proper way
+Television4 v4:brand: "Sony"
+made: 2000
+2: 22
+
+//v5- brand(string),size(int32),make(int32),price(int32)
+//added price
+Television5 v5:brand: "Sony"
+size: 22
+make: 2000
+
+//v6- brand(string),size(string),make(int32)
+// type change for size(int32 to string)
+Television6 v6:brand: "Sony"
+make: 2000
+2: 22
+```
