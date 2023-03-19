@@ -9,7 +9,7 @@
 		Split a big monolithic app into multiple sub services based on business sub domain.
 		Services talk one and another.
 		Exchange data in json format over http.
-### Problems in REST:
+### Problems in REST
 	1) Request & Response protocols
 		Json usage over http 1.1 protocol.
 		TCP connection: 3 messages exchange required form TCP connection(3 Way handshake).
@@ -30,7 +30,7 @@
 	          It can process 10 billions reqs per sec,
 	7) gRPC: Developed by Google, inspired by stubby, adopted by netflix, microsoft. Belongs to CNCF.
 	   gRPC: Remote procedure calls for inter micro service communication. Looks like method call in distributed applications.
-### HTTP2 vs HTTP1.1:
+### HTTP2 vs HTTP1.1
 	HTTP 1.1 : Introduced in 1997, baseline.
 	HTTP2 : Multiplexing, Binary, Header compression, Flow Control.
 	        Multiplexing: one TCP connection is enough to get multiple responses.
@@ -40,10 +40,9 @@
 	            Strict typing, DTO, Service definition, Language-agnostic,
 	            Auto-Generated binding for multiple languages. 
 	            Great for Mobile apps.
-### gRPC bs Rest:
+### gRPC vs Rest
 	REST : architecture style, resource oriented(Book,Person....), [ JSON + HTTP1.1 ]
 	gRPC: A RPC f/w, more flexible & action oriented, specific to inter-service communication.
 
 * Apache Benchmark : Performance test to generate load: Good to learn.
 * Apache Activity: BPMN, Good to learn.
-
