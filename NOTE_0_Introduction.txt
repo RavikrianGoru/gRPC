@@ -1,10 +1,10 @@
 1) Problem Statement:
-	Monolitic pplications:
+	Monolithic applications:
 		Whole application as a single unit.
 		+ Fast processing as local calls
-		- Too big to complect to manage.
-	MocriServices:
-		Split a bg monolithic app into multiple sub services based on business sub domain.
+		- Too big to complex to manage.
+	MicroServices:
+		Split a big monolithic app into multiple sub services based on business sub domain.
 		Services talk one and another.
 		Exchange data in json format over http.
 Problems in REST:
