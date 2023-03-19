@@ -17,15 +17,15 @@
 	2) Headers:
 		HTTP is stateless protocol so, every request carries headers(cookies, user agent,...), body(data) in plain text format.
 	3) Serialization & Deserialization 
-		If client App has two send personal details in request;
+		If client App has two send Person details in request;
 		Create Person Object/json serialize data and send it over n/w then Server receives the data & deserialize the data.
 		Machine understand the binary data . The Data in plain text format consumes more CPU, Memory....
 	4) API Contract:
 		There is no strict type/contract in json.
 		Person(frame) can be mapped to Person(f_name)
-		Client has to share Models dependency. or has to share openAPI but not standard.
+		Client has to share Models dependency/swagger or has to share over openAPI but it is not standard.
 	5) Client SDK:
-		Server' service development in java, can't send library for other languages like JavaScript, Python...etc.
+		Server's service development in java, can't send library for other languages like JavaScript, Python...etc.
 	6) Stubby:RPC f/w from Google, support cross-platform but tightly coupled with their infrastructure. 
 	          It can process 10 billions reqs per sec,
 	7) gRPC: Developed by Google, inspired by stubby, adopted by netflix, microsoft. Belongs to CNCF.
