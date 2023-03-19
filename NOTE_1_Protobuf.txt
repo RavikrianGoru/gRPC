@@ -1,7 +1,7 @@
 Protocol Buffer:
-	IDL (Interface Description Lanaguage for gRPC API. Like WSDL for SOAP....etc
-	Platform Neutral, Language Neutral, Serializing/Deserializing structured data, very fast/optimized for interservice communication.
-	Provides client librabries automatically for many languages(jva,C++,Javacript,Go,Ruby,C#,Python...etc)
+	IDL (Interface Description Language for gRPC API. Like WSDL for SOAP....etc
+	Platform Neutral, Language Neutral, Serializing/Deserializing structured data, very fast/optimized for inter-service communication.
+	Provides client libraries automatically for many languages(jva,C++,JavaScript,Go,Ruby,C#,Python...etc)
 1) Protobuf dependencies:
 
 	<dependencies>	
@@ -267,8 +267,8 @@ Protocol Buffer:
 		Deserialized Data:name: "Ravi"
 		age: 30
 	-----
-	10) Protobuf vs Jakson(Performance Test): We will test both Proto Person and JPerson by serializing and deserializing. Check the time taken  for both.
-		Create JPerson.java with same field in person.proto such as name,age.
+	10) Protobuf vs Jakson(Performance Test): We will test both Proto Person and JPerson by serializing and deserializing.
+	    Check the time taken  for both. Create JPerson.java with same field in person.proto such as name,age.
 	----
 		package in.rk.protobuf.models;
 	
