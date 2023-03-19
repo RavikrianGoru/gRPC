@@ -618,65 +618,72 @@ System.out.println("Check addr is available in p.hasAddr():"+p.hasAddr());
 * Proto files can be packaged and imported.
 * package keyword
 * import keyword
+
 Create "common" package/folder under proto
 Create address.proto, car.proto messages into "common" package as below. move the code here as below.
 
-			syntax="proto3"; //indicates to use proto3 syntax.
-			
-			package common;
-			
-			option java_multiple_files=true;
-			option java_package="in.rk.models";
-			
-			message Address
-			{
-			int32 postbox=1;
-			string stret=2;
-			string city=3;
-			}
+```
+syntax="proto3"; //indicates to use proto3 syntax.
 
-			syntax="proto3"; //indicates to use proto3 syntax.
-			
-			package common;
-			
-			option java_multiple_files=true;
-			option java_package="in.rk.models";
-			
-			message Car
-			{
-			string make=1;
-			string model=2;
-			int32 year=3;
-			BodyStyle bodyStyle=4;
-			}
-			
-			enum BodyStyle
-			{
-				UNKNOWN=0;
-				COUPE=1;
-				SUV=2;
-				SEDAN=3;
-			}
-		----
-			syntax="proto3";
-			option java_multiple_files=true;
-			option java_package="in.rk.models";
-			
-			import "common/address.proto";
-			import "common/car.proto";
-			
-			message Person
-			{
-			string name=1;
-			int32 age=2;
-			common.Address addr=3;
-			repeated common.Car car=4;
-			}
-			
-			message Dealer
-			{
-			map<int32,common.Car> model=1;
-			}
+package common;
+
+option java_multiple_files=true;
+option java_package="in.rk.models";
+
+message Address
+{
+	int32 postbox=1;
+	string stret=2;
+	string city=3;
+}
+```
+```
+syntax="proto3"; //indicates to use proto3 syntax.
+
+package common;
+
+option java_multiple_files=true;
+option java_package="in.rk.models";
+
+message Car
+{
+	string make=1;
+	string model=2;
+	int32 year=3;
+	BodyStyle bodyStyle=4;
+}
+
+enum BodyStyle
+{
+	UNKNOWN=0;
+	COUPE=1;
+	SUV=2;
+	SEDAN=3;
+}
+```
+```
+syntax="proto3";
+option java_multiple_files=true;
+option java_package="in.rk.models";
+
+import "common/address.proto";
+import "common/car.proto";
+
+message Person
+{
+string name=1;
+int32 age=2;
+common.Address addr=3;
+repeated common.Car car=4;
+}
+
+message Dealer
+{
+map<int32,common.Car> model=1;
+}
+
+```
+
 		----
 		3) Create PersonCompositionDemo.java to create/set Person class object and print.
 		----
