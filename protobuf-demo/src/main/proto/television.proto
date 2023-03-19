@@ -1,0 +1,47 @@
+syntax="proto3";
+option java_multiple_files=true;
+option java_package="in.rk.models";
+
+//v1- brand(string),size(int32),make(int32)
+message Television1
+{
+  string brand=1;
+  int32 size=2;
+  int32 make=3;
+}
+
+//v2- brand(string),size(int32),made(int32)
+//renamed make-->made
+message Television2
+{
+  string brand=1;
+  int32 size=2;
+  int32 made=3;
+}
+
+//v3- brand(string),size(int32)
+//removed make
+message Television3
+{
+  string brand=1;
+  int32 size=2;
+}
+
+//v4- brand(string),size(int32),make(int32),price(int32)
+//added price
+message Television4
+{
+  string brand=1;
+  int32 size=2;
+  int32 make=3;
+  int32 price=4;
+}
+
+//v5- brand(string),size(string),make(int32)
+// type change for size(int32 to string)
+message Television5
+{
+  string brand=1;
+  string size=2;
+  int32 make=3;
+}

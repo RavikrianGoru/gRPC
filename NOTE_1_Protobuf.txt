@@ -901,7 +901,156 @@ Protocol Buffer:
 			
 			value: 1234567890
 			----		
-		
+	23) Proto Filed numbers 1 to 2^29 -1
+		* Each field is assigned with unique number
+		* 1 is the smallest number, 2^29 -1 is the largest number.
+		* 0 is the smallest for enum(Special case)
+		* 1-15 for frequently used fields.
+		* Do not reorder the fields once it is in use.
+		* Adding and Removing fields(use reserved keyword for fields & numbers) will not break old proto.
+		* Renaming is ok. but be cautious.
+		* Changing int32 to int64 is OK.
+				   int64 to int32 may cause issue.
+		* Keep the protos as separate maven module and add then as dependencies in other modules.
+		# 1-15					--> 1 byte [Apply on frequently used fields]
+		# 16-2014				--> 2 bytes 
+		# 19000-19999			--> Reserved for proto internal usage.
+	24) Message version compatibility
+		Case-1: What happens when serialized message(version) mismatche while deserializing?
+		Usually, we must use the same object while serialization & deserializion.
+				 but i used different classes while deserializion as no issue during test.
+		1) Create television.proto files as below
+		----
+			syntax="proto3";
+			option java_multiple_files=true;
+			option java_package="in.rk.models";
 			
+			//v1- brand(string),size(int32),make(int32)
+			message Television1
+			{
+			  string brand=1;
+			  int32 size=2;
+			  int32 make=3;
+			}
+			
+			//v2- brand(string),size(int32),made(int32)
+			//renamed make-->made
+			message Television2
+			{
+			  string brand=1;
+			  int32 size=2;
+			  int32 made=3;
+			}
+			
+			//v3- brand(string),size(int32)
+			//removed make
+			message Television3
+			{
+			  string brand=1;
+			  int32 size=2;
+			}
+			
+			//v4- brand(string),size(int32),make(int32),price(int32)
+			//added price
+			message Television4
+			{
+			  string brand=1;
+			  int32 size=2;
+			  int32 make=3;
+			  int32 price=4;
+			}
+			
+			//v5- brand(string),size(string),make(int32)
+			// type change for size(int32 to string)
+			message Television5
+			{
+			  string brand=1;
+			  string size=2;
+			  int32 make=3;
+			}
+		----		
+		2) Create TelevisionVersionCompatibilityDemo class to test
+		----
+			package in.rk.protobuf;
+			
+			import in.rk.models.*;
+			
+			import java.io.IOException;
+			import java.nio.file.Files;
+			import java.nio.file.Path;
+			import java.nio.file.Paths;
+			
+			public class TelevisionVersionCompatibilityDemo {
+			    public static void main(String[] args) throws IOException {
+			        Television1 t1= Television1.newBuilder()
+			                .setBrand("Sony")
+			                .setSize(22)
+			                .setMake(2000)
+			                .build();
+			        //ser
+			        Path path= Paths.get("t_v1.ser");
+			        Files.write(path,t1.toByteArray());
+			        //deser
+			        byte[] bytes = Files.readAllBytes(path);
+			        Television1 t11=Television1.parseFrom(bytes);
+			        System.out.println("//v1- brand(string),size(int32),make(int32)");
+			        System.out.println("Television1 v1:"+t11);
+			
+			
+			        System.out.println("//v2- brand(string),size(int32),made(int32)");
+			        System.out.println("//renamed make-->made");
+			        Television2 t12=Television2.parseFrom(bytes);
+			        System.out.println("Television2 v2:"+t12);
+			
+			        System.out.println("//v3- brand(string),size(int32)");
+			        System.out.println("//remove make");
+			        Television3 t13= Television3.parseFrom(bytes);
+			        System.out.println("Television3 v3:"+t13);
+			
+			        System.out.println("//v4- brand(string),size(int32),make(int32),price(int32)");
+			        System.out.println("//added price");
+			        Television4 t14= Television4.parseFrom(bytes);
+			        System.out.println("Television4 v4:"+t14);
+			
+			        System.out.println("//v5- brand(string),size(string),make(int32)");
+			        System.out.println("// type change for size(int32 to string)");// incompatable types but it gives output 2:22 unable to map size.
+			        Television5 t15= Television5.parseFrom(bytes);
+			        System.out.println("Television5 v5:"+t15);
+			
+			
+			    }
+			}
+		----
+		3) o/p:
+		----
+			//v1- brand(string),size(int32),make(int32)
+			Television1 v1:brand: "Sony"
+			size: 22
+			make: 2000
+			
+			//v2- brand(string),size(int32),made(int32)
+			//renamed make-->made
+			Television2 v2:brand: "Sony"
+			size: 22
+			made: 2000
+			
+			//v3- brand(string),size(int32)
+			//remove make
+			Television3 v3:brand: "Sony"
+			size: 22
+			3: 2000
+			
+			//v4- brand(string),size(int32),make(int32),price(int32)
+			//added price
+			Television4 v4:brand: "Sony"
+			size: 22
+			make: 2000
+			
+			//v5- brand(string),size(string),make(int32)
+			// type change for size(int32 to string)
+			Television5 v5:brand: "Sony"
+			make: 2000
+			2: 22
+		----		
 		
 		
