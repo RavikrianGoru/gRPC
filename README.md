@@ -237,8 +237,8 @@
 File-->Settings-->Plugins-->Search Proto--> Install Protocol Buffers Plugin 
 ```
 
-1. Create "proto" folder under "main" as specified in ```<protoSourceRoot>```  tag above.
-2. Create "person.proto" under proto folder.
+1. Create "proto" folder under ```main```  as specified in ```<protoSourceRoot>```  tag above.
+2. Create "person.proto" under ```proto``` folder.
 ``` 
 syntax="proto3"; //indicates to use proto3 syntax.
 message Person
@@ -304,7 +304,7 @@ Equals of p1, p2:true
 == of p1, p2:false
 
 ```
-7. Serialize and Deserialize the Person object, Updathe the PesonDemo.java
+7. Serialize and Deserialize the Person object, update the PersonDemo.java
 ```
 package in.rk.protobuf;
 import in.rk.models.Person;
@@ -332,152 +332,167 @@ public class PersonDemo {
 		System.out.println("Deserialized Data:"+Person.parseFrom(bytes));
 	}
 }
-
 ```
-Output:
-```
-new file is created "person.ser"
 
+Output: new file  ```person.ser``` is created 
+```
 Deserialized Data:name: "Ravi"
 age: 30
-
 ```
 
-8. Protobuf vs Jakson(Performance Test): We will test both Proto Person and JPerson by serializing and deserializing. 
-	    Check the time taken  for both. Create JPerson.java with same field in person.proto such as name,age.
-	----
-		package in.rk.protobuf.models;
-	
-		public class JPerson 
+8. Protobuf vs Jackson (Performance Test)
+```
+    We will test both Proto Person and JPerson by serializing and deserializing. 
+	Check the time taken  for both. Create JPerson.java with same field in person.proto such as name,age.
+```
+```
+package in.rk.protobuf.models;
+
+public class JPerson 
+{
+	private String name;
+	private int age;
+
+	public String getName() { return name; }
+	public void setName(String name) { this.name = name; }
+	public int getAge() { return age; }
+	public void setAge(int age) { this.age = age; }
+}
+```
+
+Create ProtoJsonPerformaceDemo.java as below
+```
+package in.rk.protobuf;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.protobuf.InvalidProtocolBufferException;
+import in.rk.models.Person;
+import in.rk.protobuf.models.JPerson;
+
+import java.io.IOException;
+
+public class ProtoJacksonPerformaceDemo {
+	public static void main(String[] args) {
+		//Jackson: Serialization & Deserialization
+		JPerson jp1 = new JPerson();
+		jp1.setName("Ravi");
+		jp1.setAge(35);
+
+		ObjectMapper mapper =new ObjectMapper();
+		Runnable jaksonRunnable=()-> {
+			try {
+				//serialization
+				byte[] bytes = mapper.writeValueAsBytes(jp1);
+				//System.out.println(bytes.length);         //24
+				//Deserialization
+				JPerson jp2=mapper.readValue(bytes,JPerson.class);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		};
+
+		//Proto: Serialization & Deserialization
+		Person p1= Person.newBuilder().setName("Ravi").setAge(35).build();
+
+		Runnable protoRunnable=()->{
+			try {
+				//serialization
+				byte[] bytes = p1.toByteArray();
+				//System.out.println(bytes.length);         //8
+				//Deserialization
+				Person p2 = Person.parseFrom(bytes);
+			} catch (InvalidProtocolBufferException e) {
+				e.printStackTrace();
+			}
+		};
+
+		//Run :PT
+		for (int i=1; i<=5;i++)
 		{
-			private String name;
-			private int age;
-		
-			public String getName() { return name; }
-			public void setName(String name) { this.name = name; }
-			public int getAge() { return age; }
-			public void setAge(int age) { this.age = age; }
+			runPT(jaksonRunnable,"JACKSON");
+			runPT(protoRunnable,"PROTO");
 		}
-	----
-		Create ProtoJsonPerformaceDemo.java as below
-	----
-		package in.rk.protobuf;
-		
-		import com.fasterxml.jackson.core.JsonProcessingException;
-		import com.fasterxml.jackson.databind.ObjectMapper;
-		import com.google.protobuf.InvalidProtocolBufferException;
-		import in.rk.models.Person;
-		import in.rk.protobuf.models.JPerson;
-		
-		import java.io.IOException;
-		
-		public class ProtoJacksonPerformaceDemo {
-			public static void main(String[] args) {
-				//Jackson: Serialization & Deserialization
-				JPerson jp1 = new JPerson();
-				jp1.setName("Ravi");
-				jp1.setAge(35);
-		
-				ObjectMapper mapper =new ObjectMapper();
-				Runnable jaksonRunnable=()-> {
-					try {
-						//serialization
-						byte[] bytes = mapper.writeValueAsBytes(jp1);
-						//System.out.println(bytes.length);         //24
-						//Deserialization
-						JPerson jp2=mapper.readValue(bytes,JPerson.class);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				};
-		
-				//Proto: Serialization & Deserialization
-				Person p1= Person.newBuilder().setName("Ravi").setAge(35).build();
-		
-				Runnable protoRunnable=()->{
-					try {
-						//serialization
-						byte[] bytes = p1.toByteArray();
-						//System.out.println(bytes.length);         //8
-						//Deserialization
-						Person p2 = Person.parseFrom(bytes);
-					} catch (InvalidProtocolBufferException e) {
-						e.printStackTrace();
-					}
-				};
-		
-				//Run :PT
-				for (int i=1; i<=5;i++)
-				{
-					runPT(jaksonRunnable,"JACKSON");
-					runPT(protoRunnable,"PROTO");
-				}
-		
-			}
-		
-			private static void runPT(Runnable r, String method)
-			{
-				long startTme=System.currentTimeMillis();
-				for(int i=1;i<=1000000;i++)
-				{
-					r.run();
-				}
-				long endTime=System.currentTimeMillis();
-				System.out.println("Method :"+method +" Total Time:"+(endTime-startTme));
-			}
+
+	}
+
+	private static void runPT(Runnable r, String method)
+	{
+		long startTme=System.currentTimeMillis();
+		for(int i=1;i<=1000000;i++)
+		{
+			r.run();
 		}
-	----
-	o/p:
-		Method :JACKSON Total Time:4694
-		Method :PROTO Total Time:549
-		Method :JACKSON Total Time:1517
-		Method :PROTO Total Time:231
-		Method :JACKSON Total Time:1241
-		Method :PROTO Total Time:207
-		Method :JACKSON Total Time:1206
-		Method :PROTO Total Time:209
-		Method :JACKSON Total Time:1215
-		Method :PROTO Total Time:211
-	----
-	11) adding comments in .proto file: same like java 
-		// inline comments
-		/*
-			multi-line comments
-		*/
-	12) Client library generation using protoc compiler through cmds.
-	person.proto file is available in src/main/proto/. & protoc compiler is available in target/protoc-plugin/.
-	Run the below command will get the error as below.
-	RC: some issue with protoc-3.21.1 version:
-		Downgrage to 3.19.0 in pom.xml then rerun.
-	----
-	
-	$ ../../../target/protoc-plugins/protoc-3.21.1-windows-x86_64.exe --js_out=./ *.proto
-	'protoc-gen-js' is not recognized as an internal or external command,
-	operable program or batch file.
-	--js_out: protoc-gen-js: Plugin failed with status code 1.
-	----
-		$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --js_out=./ *.proto
-		$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --cpp_out=./ *.proto
-		$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --kotlin_out=./ *.proto
-		$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --objc_out=./ *.proto
-		$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --php_out=./ *.proto
-		$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --python_out=./ *.proto
-		$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --ruby_out=./ *.proto
-		$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --java_out=./ *.proto
-	----
-	13) Install protoc tool , set path variable then we can run >proto --js_out=./ person.proto command from src/main/proto folder.
-	14) Proto/scalar types
-		--------------------------------------------------
-		Java Type						Proto/Scalar Type
-		--------------------------------------------------
-		int								int32
-		long 							int64
-		float							float
-		double							double
-		boolen							bool
-		String							string
-		byte[]							bytes
-	15) Proto composition : Define a class as variable in another class is called composition.
+		long endTime=System.currentTimeMillis();
+		System.out.println("Method :"+method +" Total Time:"+(endTime-startTme));
+	}
+}
+```
+
+Output:
+```
+Method :JACKSON Total Time:4694
+Method :PROTO Total Time:549
+Method :JACKSON Total Time:1517
+Method :PROTO Total Time:231
+Method :JACKSON Total Time:1241
+Method :PROTO Total Time:207
+Method :JACKSON Total Time:1206
+Method :PROTO Total Time:209
+Method :JACKSON Total Time:1215
+Method :PROTO Total Time:211
+```
+
+9. adding comments in .proto file: same like java 
+```
+// inline comments
+/*
+	multi-line comments
+*/
+```
+
+10. Client library generation using protoc compiler through cmds.
+```
+person.proto file is available in src/main/proto/. & protoc compiler is available in target/protoc-plugin/.
+Run the below command will get the error as below.
+RC: some issue with protoc-3.21.1 version:
+Downgrade to 3.19.0 in pom.xml then rerun.
+```
+Error:
+```
+$ ../../../target/protoc-plugins/protoc-3.21.1-windows-x86_64.exe --js_out=./ *.proto
+'protoc-gen-js' is not recognized as an internal or external command,
+operable program or batch file.
+--js_out: protoc-gen-js: Plugin failed with status code 1.
+```
+Commands to generate client libs:
+```
+$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --js_out=./ *.proto
+$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --cpp_out=./ *.proto
+$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --kotlin_out=./ *.proto
+$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --objc_out=./ *.proto
+$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --php_out=./ *.proto
+$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --python_out=./ *.proto
+$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --ruby_out=./ *.proto
+$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --java_out=./ *.proto
+```
+```
+Install protoc tool , set path variable then run below cmd
+>proto --js_out=./ person.proto command from src/main/proto folder.
+```
+11. Proto/scalar types
+
+| Java Type | Proto/Scalar Type|
+| ----------------- | ------------------ |
+| int	|	int32 |
+| long 	|	int64 |
+| float	|	float |
+| double |	double |
+| boolen |	bool |
+| String |	string |
+| byte[] |	bytes |
+
+12. Proto composition : Define a class as variable in another class is called composition.
 		Update person.proto as below
 		----
 		syntax="proto3"; //indicates to use proto3 syntax.
