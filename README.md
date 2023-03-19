@@ -130,133 +130,130 @@
 - Create a maven project "gRPC" which is Parent for all modules
 
 ```
-    <?xml version="1.0" encoding="UTF-8"?>
-	<project xmlns="http://maven.apache.org/POM/4.0.0"
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
 			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 			xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-		<modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 	
-		<groupId>in.rk</groupId>
-		<artifactId>gRPC</artifactId>
-		<version>1.0-SNAPSHOT</version>
-		<modules>
-			<module>protobuf-demo</module>
-		</modules>
-	
-		<packaging>pom</packaging>
-	</project>	
+	<groupId>in.rk</groupId>
+	<artifactId>gRPC</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<modules>
+		<module>protobuf-demo</module>
+	</modules>
+	<packaging>pom</packaging>
+</project>	
 
 ```
 - Create a module "protobuf-demo" in "gRPC" project. add the below dependencies & plugin.
 
 ```
-	<?xml version="1.0" encoding="UTF-8"?>
-	<project xmlns="http://maven.apache.org/POM/4.0.0"
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
 			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 			xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-		<parent>
-			<artifactId>gRPC</artifactId>
-			<groupId>in.rk</groupId>
-			<version>1.0-SNAPSHOT</version>
-		</parent>
-		<modelVersion>4.0.0</modelVersion>
-		<artifactId>protobuf-demo</artifactId>
-	
-		<dependencies>
-			<!-- To generate language specific compiled Classes for message...-->
-			<dependency>
-				<groupId>io.grpc</groupId>
-				<artifactId>grpc-protobuf</artifactId>
-				<version>1.49.0</version>
-			</dependency>
-	
-			<!-- Required if we use java 9 or above  -->
-			<dependency>
-				<groupId>org.apache.tomcat</groupId>
-				<artifactId>annotations-api</artifactId>
-				<version>6.0.53</version>
-				<scope>provided</scope>
-			</dependency>
-	
-			<!-- To handle Json mappings-->
-			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-databind</artifactId>
-				<version>2.13.3</version>
-			</dependency>
-		</dependencies>
-	
-	
-		<build>
-			<extensions>
-				<extension>
-					<groupId>kr.motd.maven</groupId>
-					<artifactId>os-maven-plugin</artifactId>
-					<version>1.6.2</version>
-				</extension>
-			</extensions>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<configuration>
-						<source>11</source>
-						<target>11</target>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.xolstice.maven.plugins</groupId>
-					<artifactId>protobuf-maven-plugin</artifactId>
-					<version>0.6.1</version>
-					<configuration>
-						<protocArtifact>
-							com.google.protobuf:protoc:3.21.1:exe:${os.detected.classifier}
-						</protocArtifact>
-						<pluginId>grpc-java</pluginId>
-						<pluginArtifact>
-							io.grpc:protoc-gen-grpc-java:1.49.0:exe:${os.detected.classifier}
-						</pluginArtifact>
-						<protoSourceRoot>
-							${basedir}/src/main/proto/
-						</protoSourceRoot>
-					</configuration>
-					<executions>
-						<execution>
-							<goals>
-								<goal>compile</goal>
-								<goal>compile-custom</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-			</plugins>
-		</build>
-	</project>	
-```
-* IntelliJ :File-->Settings-->Plugins-->Search Proto--> Install Protocol Buffers
+	<parent>
+		<artifactId>gRPC</artifactId>
+		<groupId>in.rk</groupId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>protobuf-demo</artifactId>
 
-Create "proto" folder under "main" as specified in <protoSourceRoot> tag above.
-	4) Create "person.proto" under proto folder.
-	------
-		syntax="proto3"; //indicates to use proto3 syntax.
-		message Person
-		{
-		string name=1;
-		int32 age=2;
-		}
-	------
-	5) Do mvn clean install on "protobuf-demo" module
-	   It will generate PersonOuter.class (single file for all classes) under "target/generated-sources/protobuf/java/."
-	6) Update person.proto file as below.
-	------
-		syntax="proto3"; //indicates to use proto3 syntax.
-		option java_multiple_files=true;
-		option java_package="in.rk.models";
-		message Person
-		{
-		string name=1;
-		int32 age=2;
-		}	
+	<dependencies>
+		<!-- To generate language specific compiled Classes for message...-->
+		<dependency>
+			<groupId>io.grpc</groupId>
+			<artifactId>grpc-protobuf</artifactId>
+			<version>1.49.0</version>
+		</dependency>
+
+		<!-- Required if we use java 9 or above  -->
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>annotations-api</artifactId>
+			<version>6.0.53</version>
+			<scope>provided</scope>
+		</dependency>
+	
+		<!-- To handle Json mappings-->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.13.3</version>
+		</dependency>
+	</dependencies>
+	
+	
+	<build>
+		<extensions>
+			<extension>
+				<groupId>kr.motd.maven</groupId>
+				<artifactId>os-maven-plugin</artifactId>
+				<version>1.6.2</version>
+			</extension>
+		</extensions>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>11</source>
+					<target>11</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.xolstice.maven.plugins</groupId>
+				<artifactId>protobuf-maven-plugin</artifactId>
+				<version>0.6.1</version>
+				<configuration>
+					<protocArtifact>
+						com.google.protobuf:protoc:3.21.1:exe:${os.detected.classifier}
+					</protocArtifact>
+					<pluginId>grpc-java</pluginId>
+					<pluginArtifact>
+						io.grpc:protoc-gen-grpc-java:1.49.0:exe:${os.detected.classifier}
+					</pluginArtifact>
+					<protoSourceRoot>
+						${basedir}/src/main/proto/
+					</protoSourceRoot>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>compile</goal>
+							<goal>compile-custom</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>	
+```
+- Install Protocol Buffers plugin in intelliJ 
+``` 
+File-->Settings-->Plugins-->Search Proto--> Install Protocol Buffers Plugin 
+```
+
+1. Create "proto" folder under "main" as specified in ```<protoSourceRoot>```  tag above.
+2. Create "person.proto" under proto folder.
+
+```
+syntax="proto3"; //indicates to use proto3 syntax.
+message Person
+{
+string name=1;
+int32 age=2;
+}
+```	
+3. Do mvn clean install on "protobuf-demo" module
+   It will generate PersonOuter.class (single file for all classes) under "target/generated-sources/protobuf/java/."
+4. Update person.proto file as below.
+
+```
+
 	------
 	7) Do mvn clean install on "protobuf-demo" module
 	   It will generates indiidual java files for classes, interfaces in specified package under "target/generated-sources/protobuf/java/."
