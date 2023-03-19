@@ -597,7 +597,7 @@ emp_grade: AVP
 ```
 16. Default values
 
-| data type | default value|
+| Data type | Default value|
 | ----------------|-----------------|
 | int32 / any number |		0 |
 | bool	| false |
@@ -613,13 +613,14 @@ System.out.println("No Null pointer exception for p.getAddr().getPostbox():"+p.g
 System.out.println("Check addr is available in p.hasAddr():"+p.hasAddr());
 ```	
 		
-	20) Proto Module and importing
-		* Proto files can be packaged and imported.
-		* package keyword
-		* import keyword
-		1) Create "common" package/folder under proto
-		2) Create address.proto, car.proto messages into "common" package as below. move the code here as below.
-		----
+17. Proto Module and importing
+
+* Proto files can be packaged and imported.
+* package keyword
+* import keyword
+Create "common" package/folder under proto
+Create address.proto, car.proto messages into "common" package as below. move the code here as below.
+
 			syntax="proto3"; //indicates to use proto3 syntax.
 			
 			package common;
@@ -633,7 +634,7 @@ System.out.println("Check addr is available in p.hasAddr():"+p.hasAddr());
 			string stret=2;
 			string city=3;
 			}
-		----
+
 			syntax="proto3"; //indicates to use proto3 syntax.
 			
 			package common;
