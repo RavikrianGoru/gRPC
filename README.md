@@ -254,77 +254,96 @@ It will generate PersonOuter.class (single file for all classes) under "target/g
 ```
 
 4. Update person.proto file as below.
+``` 
+syntax="proto3";
+option java_multiple_files=true;
+option java_package="in.rk.models";
+
+message Person
+{
+string name=1;
+int32 age=2;
+}
+
+```
 5. Do mvn clean install on "protobuf-demo" module
 ```
-It will generate individual java files for classes, interfaces in specified package under "target/generated-sources/protobuf/java/."
+It will generate individual java files for classes,interfaces in specified package under "target/generated-sources/protobuf/java/."
 ```
-	8) Create PersonDemo class with main(...) for Testing.
-	-----
-		package in.rk.protobuf;
-		import in.rk.models.Person;
-		
-		public class PersonDemo {
-			public static void main(String[] args) {
-				Person p1= Person.newBuilder()
-						.setName("Ravi")
-						.setAge(30)
-						.build();
-				Person p2= Person.newBuilder()
-						.setName("Ravi")
-						.setAge(30)
-						.build();
-				System.out.println(p1.toString() +": Hash code :"+p1.hashCode());
-				System.out.println(p2.toString() +":Hash Code "+p2.hashCode());
-				System.out.println("Equals of p1, p2:"+p1.equals(p2));
-				System.out.println("== of p1, p2:"+(p1==p2));
-			}
-		}
-	-----
-	o/p:
-		name: "Ravi"
-		age: 30
-		: Hash code :-1515260531
-		name: "Ravi"
-		age: 30
-		:Hash Code -1515260531
-		Equals of p1, p2:true
-		== of p1, p2:false
-	-----
-	9) Serialize and Deserialize the Person object, Updathe the PesonDemo.java
-	-----
-		package in.rk.protobuf;
-		import in.rk.models.Person;
-		import java.io.IOException;
-		import java.nio.file.Files;
-		import java.nio.file.Path;
-		import java.nio.file.Paths;
-		
-		public class PersonDemo {
-			public static void main(String[] args) {
-				Person p1= Person.newBuilder()
-						.setName("Ravi")
-						.setAge(30)
-						.build();
-				Person p2= Person.newBuilder()
-						.setName("Ravi")
-						.setAge(30)
-						.build();
-			
-			//Serialize Person
-				Path path= Paths.get("person.ser");
-				Files.write(path,p1.toByteArray());
-			//Deserialize Person
-				byte[] bytes = Files.readAllBytes(path);
-				System.out.println("Deserialized Data:"+Person.parseFrom(bytes));
-			}
-		}
-	-----
-	o/p: new file is created "person.ser"
+6. Create PersonDemo class with main(...) for Testing.
+```
+package in.rk.protobuf;
+import in.rk.models.Person;
+
+public class PersonDemo {
+	public static void main(String[] args) {
+		Person p1= Person.newBuilder()
+				.setName("Ravi")
+				.setAge(30)
+				.build();
+		Person p2= Person.newBuilder()
+				.setName("Ravi")
+				.setAge(30)
+				.build();
+		System.out.println(p1.toString() +": Hash code :"+p1.hashCode());
+		System.out.println(p2.toString() +":Hash Code "+p2.hashCode());
+		System.out.println("Equals of p1, p2:"+p1.equals(p2));
+		System.out.println("== of p1, p2:"+(p1==p2));
+	}
+}
+```
+Output:
+```
+name: "Ravi"
+age: 30
+: Hash code :-1515260531
+name: "Ravi"
+age: 30
+:Hash Code -1515260531
+Equals of p1, p2:true
+== of p1, p2:false
+
+```
+7. Serialize and Deserialize the Person object, Updathe the PesonDemo.java
+```
+package in.rk.protobuf;
+import in.rk.models.Person;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+public class PersonDemo {
+	public static void main(String[] args) {
+		Person p1= Person.newBuilder()
+				.setName("Ravi")
+				.setAge(30)
+				.build();
+		Person p2= Person.newBuilder()
+				.setName("Ravi")
+				.setAge(30)
+				.build();
 	
-		Deserialized Data:name: "Ravi"
-		age: 30
-	-----
-	10) Protobuf vs Jakson(Performance Test): We will test both Proto Person and JPerson by serializing and deserializing. 
+	//Serialize Person
+		Path path= Paths.get("person.ser");
+		Files.write(path,p1.toByteArray());
+	//Deserialize Person
+		byte[] bytes = Files.readAllBytes(path);
+		System.out.println("Deserialized Data:"+Person.parseFrom(bytes));
+	}
+}
+
+```
+Output:
+```
+new file is created "person.ser"
+
+Deserialized Data:name: "Ravi"
+age: 30
+
+```
+
+8. Protobuf vs Jakson(Performance Test): We will test both Proto Person and JPerson by serializing and deserializing. 
 	    Check the time taken  for both. Create JPerson.java with same field in person.proto such as name,age.
 	----
 		package in.rk.protobuf.models;
