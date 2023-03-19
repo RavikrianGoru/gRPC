@@ -126,8 +126,10 @@
         </plugins>
     </build>
 ### Project Setup ( IntelliJ ) 
-1) Create a maven project "gRPC" which is Parent for all modules
 
+- Create a maven project "gRPC" which is Parent for all modules
+
+```
     <?xml version="1.0" encoding="UTF-8"?>
 	<project xmlns="http://maven.apache.org/POM/4.0.0"
 			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -143,8 +145,11 @@
 	
 		<packaging>pom</packaging>
 	</project>	
-	
-	2) Create a module "protobuf-demo" in "gRPC" project. add the below dependencies & plugin.
+
+```
+- Create a module "protobuf-demo" in "gRPC" project. add the below dependencies & plugin.
+
+```
 	<?xml version="1.0" encoding="UTF-8"?>
 	<project xmlns="http://maven.apache.org/POM/4.0.0"
 			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -227,8 +232,10 @@
 			</plugins>
 		</build>
 	</project>	
-	3) Note: IntelliJ :File-->Settings-->Plugins-->Search Proto--> Install Protocol Buffers
-	   Create "proto" folder under "main" as specified in <protoSourceRoot> tag above.
+```
+* IntelliJ :File-->Settings-->Plugins-->Search Proto--> Install Protocol Buffers
+
+Create "proto" folder under "main" as specified in <protoSourceRoot> tag above.
 	4) Create "person.proto" under proto folder.
 	------
 		syntax="proto3"; //indicates to use proto3 syntax.
