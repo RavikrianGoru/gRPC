@@ -33,10 +33,12 @@
 	HTTP 1.1 : Introduced in 1997, baseline.
 	HTTP2 : Multiplexing, Binary, Header compression, Flow Control.
 	        Multiplexing: one TCP connection is enough to get multiple responses.
-			Flow Control: Sender will not send too much info when receiver can't handle it.
-		gRPC uses HTTP2 protocol by default. can be used any protocol.
-		Protobuf: it is an IDL-Interface Description language for gRPC API. Strict typing, DTO, Service definition, Language-agnostic, Auto-Generated binding for multiple languages.
-				  Great for Mobile apps.
+            Flow Control: Sender will not send too much info when receiver can't handle it.
+	* gRPC uses HTTP2 protocol by default. can be used any protocol.
+	* Protobuf: it is an IDL-Interface Description language for gRPC API.
+	            Strict typing, DTO, Service definition, Language-agnostic,
+	            Auto-Generated binding for multiple languages. 
+	            Great for Mobile apps.
 ### gRPC bs Rest:
 	REST : architecture style, resource oriented(Book,Person....), [ JSON + HTTP1.1 ]
 	gRPC: A RPC f/w, more flexible & action oriented, specific to inter-service communication.
