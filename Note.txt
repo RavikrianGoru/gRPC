@@ -407,6 +407,45 @@ Protocol Buffer:
 		Method :JACKSON Total Time:1215
 		Method :PROTO Total Time:211
 	----
-	11) 
+	11) adding comments in .proto file: same like java 
+		// inline comments
+		/*
+			multi-line comments
+		*/
+	12) Client library generation using protoc compiler through cmds.
+	person.proto file is available in src/main/proto/. & protoc compiler is available in target/protoc-plugin/.
+	Run the below command will get the error as below.
+	RC: some issue with protoc-3.21.1 version:
+		Downgrage to 3.19.0 in pom.xml then rerun.
+	----
+	
+	$ ../../../target/protoc-plugins/protoc-3.21.1-windows-x86_64.exe --js_out=./ *.proto
+	'protoc-gen-js' is not recognized as an internal or external command,
+	operable program or batch file.
+	--js_out: protoc-gen-js: Plugin failed with status code 1.
+	----
+		$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --js_out=./ *.proto
+		$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --cpp_out=./ *.proto
+		$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --kotlin_out=./ *.proto
+		$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --objc_out=./ *.proto
+		$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --php_out=./ *.proto
+		$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --python_out=./ *.proto
+		$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --ruby_out=./ *.proto
+		$ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --java_out=./ *.proto
+	----
+	13) Install protoc tool , set path variable then we can run >proto --js_out=./ person.proto command from src/main/proto folder.
+	14) Proto/scalar types
+		--------------------------------------------------
+		Java Type						Proto/Scalar Type
+		--------------------------------------------------
+		int								int32
+		long 							int64
+		float							float
+		double							double
+		boolen							bool
+		String							string
+		byte[]							bytes
+	15) Proto composition : Define a class as variable in another class is called composition.
+	
 	
 	   
