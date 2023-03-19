@@ -492,73 +492,79 @@ Install protoc tool , set path variable then run below cmd
 | String |	string |
 | byte[] |	bytes |
 
-12. Proto composition : Define a class as variable in another class is called composition.
-		Update person.proto as below
-		----
-		syntax="proto3"; //indicates to use proto3 syntax.
-		option java_multiple_files=true;
-		option java_package="in.rk.models";
-				
-		message Address
-		{
-		int32 postbox=1;
-		string stret=2;
-		string city=3;
-		}
+12. Proto composition: Define a class as variable in another class. 
+``` Update person.proto as below ```
+```
+syntax="proto3"; //indicates to use proto3 syntax.
+option java_multiple_files=true;
+option java_package="in.rk.models";
 		
-		message Car
-		{
-		string make=1;
-		string model=2;
-		int32 year=3;
-		}
-		
-		message Person
-		{
-		string name=1;
-		int32 age=2;
-		Address addr=3;
-		Car car=4;
-		}		
-		----
-	16) Proto Collections: use "repeated" keyword.
-		----
-		message Person
-		{
-		string name=1;
-		int32 age=2;
-		Address addr=3;
-		repeated Car car=4;
-		}		
-		----
-	17) Proto Map: use "map" keyword.
-		----
-		message Dealer
-		{
-		map<int32,Car> model=1;
-		}
-		----
-	18) Proto Enum: use enum keyword.
-		1) Create employee.proto in proto directory.
-		----
-		syntax="proto3";
-		option java_multiple_files=true;
-		option java_package="in.rk.models";
-		
-		enum EmpGrade
-		{
-		UNKNOWN=0;
-		AVP=1;
-		VP=2;
-		SVP=3;
-		ED=4;
-		CEO=5;
-		}
-		message Employee
-		{
-		string name=1;
-		EmpGrade emp_grade=2;
-		}		
+message Address
+{
+	int32 postbox=1;
+	string stret=2;
+	string city=3;
+}
+
+message Car
+{
+	string make=1;
+	string model=2;
+	int32 year=3;
+}
+
+message Person
+{
+	string name=1;
+	int32 age=2;
+	Address addr=3;
+	Car car=4;
+}		
+```
+
+13. Proto Collections: use "repeated" keyword.
+```
+message Person
+{
+	string name=1;
+	int32 age=2;
+	Address addr=3;
+	repeated Car car=4;
+}		
+
+```
+14. Proto Map: use "map" keyword.
+```
+message Dealer
+{
+	map<int32,Car> model=1;
+}
+
+```
+
+15. Proto Enum: use enum keyword.
+1. Create employee.proto in proto directory.
+```
+syntax="proto3";
+
+option java_multiple_files=true;
+option java_package="in.rk.models";
+	
+enum EmpGrade
+{
+	UNKNOWN=0;
+	AVP=1;
+	VP=2;
+	SVP=3;
+	ED=4;
+	CEO=5;
+}
+message Employee
+{
+	string name=1;
+	EmpGrade emp_grade=2;
+}		
+```	
 	    -----
 		2) Create EmployeeDemo.java
 		-----
