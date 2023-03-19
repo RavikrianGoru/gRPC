@@ -26,7 +26,8 @@
 		Client has to share Models dependency. or has to share openAPI but not standard.
 	5) Client SDK:
 		Server' service development in java, can't send library for other languages like JavaScript, Python...etc.
-	6) Stubby:RPC f/w from Google, support cross-platform but tightly coupled with their infrastructure. Can process10 millions reqs per sec,
+	6) Stubby:RPC f/w from Google, support cross-platform but tightly coupled with their infrastructure. 
+	          It can process 10 billions reqs per sec,
 	7) gRPC: Developed by Google, inspired by stubby, adopted by netflix, microsoft. Belongs to CNCF.
 	   gRPC: Remote procedure calls for inter micro service communication. Looks like method call in distributed applications.
 ### HTTP2 vs HTTP1.1:
