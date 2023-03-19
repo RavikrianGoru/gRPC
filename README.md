@@ -6,7 +6,7 @@
 		+ Fast processing as local calls
 		- Too big to complex to manage.
 	MicroServices:
-		Split a bg monolithic app into multiple sub services based on business sub domain.
+		Split a big monolithic app into multiple sub services based on business sub domain.
 		Services talk one and another.
 		Exchange data in json format over http.
 ### Problems in REST:
