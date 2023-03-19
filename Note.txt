@@ -1,0 +1,412 @@
+1) Problem Statement:
+	Monolitic pplications:
+		Whole application as a single unit.
+		+ Fast processing as local calls
+		- Too big to complect to manage.
+	MocriServices:
+		Split a bg monolithic app into multiple sub services based on business sub domain.
+		Services talk one and another.
+		Exchange data in json format over http.
+Problems in REST:
+	1) Request & Response protocols
+		Json usage over http 1.1 protocol.
+		TCP connection: 3 message exchanges required form TCP connection(3 Way handshae).
+		Need to wait response back before sending the next request or new TCP connection required.
+	2) Headers:
+		HTTP is stateless protocol so, every request carries headers(cookies, user agent,...), body(data) in plain text format.
+	3) Serialization & Deserialization 
+		If client App has two send personal details in request;
+		Create Person Object/json serialize data and send it over n/w then Server receive the data & dserialize the data.
+		Machine understand the binary data . The Data in plain text format consumes more CPU, Memory....
+	4) API Contract:
+		There is no strict type/contract in json.
+		Person(fname) can be mapped to Person(f_name)
+		Client has to share Models dependency. or has to share openAPI but not standard.
+	5) Client SDK:
+		Server' service development in java, can not send library for other languages like JavaScript, Python...etc.
+	6) Stubby:RPC f/w from Google, support cross-platform but tigtly coupled with their infrastructure. Can process10 nillions reqs per sec,
+	7) gRPC: Developed by Google, inspired by stubby, adopded by netfix, microsoft. Belongs to CNCF.
+	   gRPC: Remote procedure calls for inter micro service communication. Looks like method call in distributed applications.
+2) HTTP2 vs HTTP1.1:
+	HTTP 1.1 : Introduced in 1997, baseline.
+	HTTP2 : Multiplexing, Binary, Header compression, Flow Control.
+	        Multiplexing: one TCP connection is enought to get multiple responses.
+			Flow Control: Sender will not send too much infor when receier can not handle it.
+		gRPC uses HTTP2 protocol by default. can be used any protocol.
+		Protobuf: it is an IDL-Interface Description language for gRPC API. Strict typing, DTO, Service definition, Language-agonstic, Auto-Generated binding for multiple languages.
+				  Greate for Mobile apps.
+3) gRPC bs Rest:
+	REST : architecture style, resource oriented(Book,Person....), [ JSON + HTTP1.1 ]
+	gRPC: a RPC f/w, more flexible & action oriented, specific to inter-service communication.
+* Apache Bencher: Performance test to generate load: Good to learn.
+* Apache Activity: BPMN, Good to learn.
+
+===============================
+Protocol Buffer:
+	IDL (Interface Description Lanaguage for gRPC API. Like WSDL for SOAP....etc
+	Platform Neutral, Language Neutral, Serializing/Deserializing structured data, very fast/optimized for interservice communication.
+	Provides client librabries automatically for many languages(jva,C++,Javacript,Go,Ruby,C#,Python...etc)
+1) Protobuf dependencies:
+
+	<dependencies>	
+		<!-- To generate language specific compiled Classes for message...-->
+		<dependency>
+			<groupId>io.grpc</groupId>
+			<artifactId>grpc-protobuf</artifactId>
+			<version>1.49.0</version>
+		</dependency>
+		
+		<!-- Required if we use java 9 or above  -->
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>annotations-api</artifactId>
+			<version>6.0.53</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- To handle Json mappings-->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.13.3</version>
+		</dependency>
+	</dependencies>	
+
+2) Protobuf plugin:
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.6.2</version>
+            </extension>
+        </extensions>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.xolstice.maven.plugins</groupId>
+                <artifactId>protobuf-maven-plugin</artifactId>
+                <version>0.6.1</version>
+                <configuration>
+                    <protocArtifact>
+                        com.google.protobuf:protoc:3.21.1:exe:${os.detected.classifier}
+                    </protocArtifact>
+                    <pluginId>grpc-java</pluginId>
+                    <pluginArtifact>
+                        io.grpc:protoc-gen-grpc-java:1.49.0:exe:${os.detected.classifier}
+                    </pluginArtifact>
+                    <protoSourceRoot>
+                        ${basedir}/src/main/proto/
+                    </protoSourceRoot>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>compile-custom</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+3) Project Setup: Create a maven project "gRPC" 
+	1) Create a maven project "gRPC" which is parent for all modules.
+	<?xml version="1.0" encoding="UTF-8"?>
+	<project xmlns="http://maven.apache.org/POM/4.0.0"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		<modelVersion>4.0.0</modelVersion>
+	
+		<groupId>in.rk</groupId>
+		<artifactId>gRPC</artifactId>
+		<version>1.0-SNAPSHOT</version>
+		<modules>
+			<module>protobuf-demo</module>
+		</modules>
+	
+		<packaging>pom</packaging>
+	</project>	
+	
+	2) Create a module "protobuf-demo" in "gRPC" project. add the below dependencies & plugin.
+	<?xml version="1.0" encoding="UTF-8"?>
+	<project xmlns="http://maven.apache.org/POM/4.0.0"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		<parent>
+			<artifactId>gRPC</artifactId>
+			<groupId>in.rk</groupId>
+			<version>1.0-SNAPSHOT</version>
+		</parent>
+		<modelVersion>4.0.0</modelVersion>
+		<artifactId>protobuf-demo</artifactId>
+	
+		<dependencies>
+			<!-- To generate language specific compiled Classes for message...-->
+			<dependency>
+				<groupId>io.grpc</groupId>
+				<artifactId>grpc-protobuf</artifactId>
+				<version>1.49.0</version>
+			</dependency>
+	
+			<!-- Required if we use java 9 or above  -->
+			<dependency>
+				<groupId>org.apache.tomcat</groupId>
+				<artifactId>annotations-api</artifactId>
+				<version>6.0.53</version>
+				<scope>provided</scope>
+			</dependency>
+	
+			<!-- To handle Json mappings-->
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>2.13.3</version>
+			</dependency>
+		</dependencies>
+	
+	
+		<build>
+			<extensions>
+				<extension>
+					<groupId>kr.motd.maven</groupId>
+					<artifactId>os-maven-plugin</artifactId>
+					<version>1.6.2</version>
+				</extension>
+			</extensions>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+						<source>11</source>
+						<target>11</target>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.xolstice.maven.plugins</groupId>
+					<artifactId>protobuf-maven-plugin</artifactId>
+					<version>0.6.1</version>
+					<configuration>
+						<protocArtifact>
+							com.google.protobuf:protoc:3.21.1:exe:${os.detected.classifier}
+						</protocArtifact>
+						<pluginId>grpc-java</pluginId>
+						<pluginArtifact>
+							io.grpc:protoc-gen-grpc-java:1.49.0:exe:${os.detected.classifier}
+						</pluginArtifact>
+						<protoSourceRoot>
+							${basedir}/src/main/proto/
+						</protoSourceRoot>
+					</configuration>
+					<executions>
+						<execution>
+							<goals>
+								<goal>compile</goal>
+								<goal>compile-custom</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</build>
+	</project>	
+	3) Note: IntelliJ :File-->Settings-->Plugins-->Search Proto--> Install Protocol Buffers
+	   Create "proto" folder under "main" as specified in <protoSourceRoot> tag above.
+	4) Create "person.proto" under proto folder.
+	------
+		syntax="proto3"; //indicates to use proto3 syntax.
+		message Person
+		{
+		string name=1;
+		int32 age=2;
+		}
+	------
+	5) Do mvn clean install on "protobuf-demo" module
+	   It will generate PersonOuter.class (single file for all classes) under "target/generated-sources/protobuf/java/."
+	6) Update person.proto file as below.
+	------
+		syntax="proto3"; //indicates to use proto3 syntax.
+		option java_multiple_files=true;
+		option java_package="in.rk.models";
+		message Person
+		{
+		string name=1;
+		int32 age=2;
+		}	
+	------
+	7) Do mvn clean install on "protobuf-demo" module
+	   It will generates indiidual java files for classes, interfaces in specified package under "target/generated-sources/protobuf/java/."
+	8) Create PersonDemo class with main(...) for Testing.
+	-----
+		package in.rk.protobuf;
+		import in.rk.models.Person;
+		
+		public class PersonDemo {
+			public static void main(String[] args) {
+				Person p1= Person.newBuilder()
+						.setName("Ravi")
+						.setAge(30)
+						.build();
+				Person p2= Person.newBuilder()
+						.setName("Ravi")
+						.setAge(30)
+						.build();
+				System.out.println(p1.toString() +": Hash code :"+p1.hashCode());
+				System.out.println(p2.toString() +":Hash Code "+p2.hashCode());
+				System.out.println("Equals of p1, p2:"+p1.equals(p2));
+				System.out.println("== of p1, p2:"+(p1==p2));
+			}
+		}
+	-----
+	o/p:
+		name: "Ravi"
+		age: 30
+		: Hash code :-1515260531
+		name: "Ravi"
+		age: 30
+		:Hash Code -1515260531
+		Equals of p1, p2:true
+		== of p1, p2:false
+	-----
+	9) Serialize and Deserialize the Person object, Updathe the PesonDemo.java
+	-----
+		package in.rk.protobuf;
+		import in.rk.models.Person;
+		import java.io.IOException;
+		import java.nio.file.Files;
+		import java.nio.file.Path;
+		import java.nio.file.Paths;
+		
+		public class PersonDemo {
+			public static void main(String[] args) {
+				Person p1= Person.newBuilder()
+						.setName("Ravi")
+						.setAge(30)
+						.build();
+				Person p2= Person.newBuilder()
+						.setName("Ravi")
+						.setAge(30)
+						.build();
+			
+			//Serialize Person
+				Path path= Paths.get("person.ser");
+				Files.write(path,p1.toByteArray());
+			//Deserialize Person
+				byte[] bytes = Files.readAllBytes(path);
+				System.out.println("Deserialized Data:"+Person.parseFrom(bytes));
+			}
+		}
+	-----
+	o/p: new file is created "person.ser"
+	
+		Deserialized Data:name: "Ravi"
+		age: 30
+	-----
+	10) Protobuf vs Jakson(Performance Test): We will test both Proto Person and JPerson by serializing and deserializing. Check the time taken  for both.
+		Create JPerson.java with same field in person.proto such as name,age.
+	----
+		package in.rk.protobuf.models;
+	
+		public class JPerson 
+		{
+			private String name;
+			private int age;
+		
+			public String getName() { return name; }
+			public void setName(String name) { this.name = name; }
+			public int getAge() { return age; }
+			public void setAge(int age) { this.age = age; }
+		}
+	----
+		Create ProtoJsonPerformaceDemo.java as below
+	----
+		package in.rk.protobuf;
+		
+		import com.fasterxml.jackson.core.JsonProcessingException;
+		import com.fasterxml.jackson.databind.ObjectMapper;
+		import com.google.protobuf.InvalidProtocolBufferException;
+		import in.rk.models.Person;
+		import in.rk.protobuf.models.JPerson;
+		
+		import java.io.IOException;
+		
+		public class ProtoJacksonPerformaceDemo {
+			public static void main(String[] args) {
+				//Jackson: Serialization & Deserialization
+				JPerson jp1 = new JPerson();
+				jp1.setName("Ravi");
+				jp1.setAge(35);
+		
+				ObjectMapper mapper =new ObjectMapper();
+				Runnable jaksonRunnable=()-> {
+					try {
+						//serialization
+						byte[] bytes = mapper.writeValueAsBytes(jp1);
+						//System.out.println(bytes.length);         //24
+						//Deserialization
+						JPerson jp2=mapper.readValue(bytes,JPerson.class);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				};
+		
+				//Proto: Serialization & Deserialization
+				Person p1= Person.newBuilder().setName("Ravi").setAge(35).build();
+		
+				Runnable protoRunnable=()->{
+					try {
+						//serialization
+						byte[] bytes = p1.toByteArray();
+						//System.out.println(bytes.length);         //8
+						//Deserialization
+						Person p2 = Person.parseFrom(bytes);
+					} catch (InvalidProtocolBufferException e) {
+						e.printStackTrace();
+					}
+				};
+		
+				//Run :PT
+				for (int i=1; i<=5;i++)
+				{
+					runPT(jaksonRunnable,"JACKSON");
+					runPT(protoRunnable,"PROTO");
+				}
+		
+			}
+		
+			private static void runPT(Runnable r, String method)
+			{
+				long startTme=System.currentTimeMillis();
+				for(int i=1;i<=1000000;i++)
+				{
+					r.run();
+				}
+				long endTime=System.currentTimeMillis();
+				System.out.println("Method :"+method +" Total Time:"+(endTime-startTme));
+			}
+		}
+	----
+	o/p:
+		Method :JACKSON Total Time:4694
+		Method :PROTO Total Time:549
+		Method :JACKSON Total Time:1517
+		Method :PROTO Total Time:231
+		Method :JACKSON Total Time:1241
+		Method :PROTO Total Time:207
+		Method :JACKSON Total Time:1206
+		Method :PROTO Total Time:209
+		Method :JACKSON Total Time:1215
+		Method :PROTO Total Time:211
+	----
+	11) 
+	
+	   
