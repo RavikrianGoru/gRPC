@@ -615,12 +615,10 @@ System.out.println("Check addr is available in p.hasAddr():"+p.hasAddr());
 		
 17. Proto Module and importing
 
-* Proto files can be packaged and imported.
-* package keyword
-* import keyword
-
-Create "common" package/folder under proto
-Create address.proto, car.proto messages into "common" package as below. move the code here as below.
+* Proto files can be packaged and imported by using ```package``` and ```import``` keywords.
+* Create ```common``` package/folder under proto.
+* Create address.proto, car.proto messages into "common" package as below. 
+* Move the code here as below.
 
 ```
 syntax="proto3"; //indicates to use proto3 syntax.
@@ -683,132 +681,132 @@ map<int32,common.Car> model=1;
 }
 
 ```
+Create PersonCompositionDemo.java to create/set Person class object and print.
+```
+package in.rk.protobuf;
 
-		----
-		3) Create PersonCompositionDemo.java to create/set Person class object and print.
-		----
-			package in.rk.protobuf;
-			
-			import in.rk.models.Address;
-			import in.rk.models.BodyStyle;
-			import in.rk.models.Car;
-			import in.rk.models.Person;
-			
-			import java.util.ArrayList;
-			
-			public class PersonCompositionDemo {
-				public static void main(String[] args) {
-			
-					Address addr1= Address.newBuilder()
-							.setPostbox(23)
-							.setStret("Butchaiah thota")
-							.setCity("Guntur")
-							.build();
-					//System.out.println(addr1);
-					Car car1= Car.newBuilder()
-							.setMake("Toyota")
-							.setModel("M32")
-							.setYear(1999)
-							.setBodyStyle(BodyStyle.COUPE)
-							.build();
-					//System.out.println(car1);
-					Car car2=Car.newBuilder()
-							.setMake("Tomato")
-							.setModel("M35")
-							.setYear(2000)
-							.setBodyStyle(BodyStyle.SEDAN)
-							.build();
-					//System.out.println(car2);
-					ArrayList<Car> cars=new ArrayList<>();
-					cars.add(car1);
-					cars.add(car2);
-			
-					Person p1= Person.newBuilder()
-							.setName("ravi")
-							.setAge(35)
-							.setAddr(addr1)
-			//                .addCar(car1)
-			//                .addCar(car2)
-							.addAllCar(cars)
-							.build();
-					System.out.println(p1);
-				}
-			}
-		-----
-		4) o/p
-		-----
-			name: "ravi"
-			age: 35
-			addr {
-			postbox: 23
-			stret: "Butchaiah thota"
-			city: "Guntur"
-			}
-			car {
-			make: "Toyota"
-			model: "M32"
-			year: 1999
-			bodyStyle: COUPE
-			}
-			car {
-			make: "Tomato"
-			model: "M35"
-			year: 2000
-			bodyStyle: SEDAN
-			}
-		----
-		5) Create DealerMapDemo.java to test Dealer obj.
-		----
-			package in.rk.protobuf;
-			
-			import in.rk.models.BodyStyle;
-			import in.rk.models.Car;
-			import in.rk.models.CarOrBuilder;
-			import in.rk.models.Dealer;
-			
-			public class DealerMapDemo {
-				public static void main(String[] args) {
-					Car car1= Car.newBuilder()
-							.setMake("ToYoTo")
-							.setModel("T001")
-							.setYear(1999)
-							.setBodyStyle(BodyStyle.COUPE)
-							.build();
-					Car car2= Car.newBuilder()
-							.setMake("TAYATAo")
-							.setModel("T009")
-							.setYear(2000)
-							.build();
-			
-					Dealer dealer= Dealer.newBuilder()
-							.putModel(1999,car1)
-							.putModel(2000,car2)
-							.build();
-			
-					System.out.println("dealer.containsModel(2000) :"+dealer.containsModel(2000));
-					System.out.println("dealer.containsModel(2001) :"+dealer.containsModel(2001));
-					System.out.println("dealer.getModelCount() :"+dealer.getModelCount());
-					System.out.println("dealer.getModelMap(): "+dealer.getModelMap());
-					System.out.println(dealer.getModelOrThrow(2000).getBodyStyle());
-			
-				}
-			}
-		-----
-		6) o/p:
-		-----
-			dealer.containsModel(2000) :true
-			dealer.containsModel(2001) :false
-			dealer.getModelCount() :2
-			dealer.getModelMap(): {1999=make: "ToYoTo"
-			model: "T001"
-			year: 1999
-			bodyStyle: COUPE
-			, 2000=make: "TAYATAo"
-			model: "T009"
-			year: 2000
-			}
-			UNNOWN
-		-----
+import in.rk.models.Address;
+import in.rk.models.BodyStyle;
+import in.rk.models.Car;
+import in.rk.models.Person;
+
+import java.util.ArrayList;
+
+public class PersonCompositionDemo {
+	public static void main(String[] args) {
+
+		Address addr1= Address.newBuilder()
+				.setPostbox(23)
+				.setStret("Butchaiah thota")
+				.setCity("Guntur")
+				.build();
+		//System.out.println(addr1);
+		Car car1= Car.newBuilder()
+				.setMake("Toyota")
+				.setModel("M32")
+				.setYear(1999)
+				.setBodyStyle(BodyStyle.COUPE)
+				.build();
+		//System.out.println(car1);
+		Car car2=Car.newBuilder()
+				.setMake("Tomato")
+				.setModel("M35")
+				.setYear(2000)
+				.setBodyStyle(BodyStyle.SEDAN)
+				.build();
+		//System.out.println(car2);
+		ArrayList<Car> cars=new ArrayList<>();
+		cars.add(car1);
+		cars.add(car2);
+
+		Person p1= Person.newBuilder()
+				.setName("ravi")
+				.setAge(35)
+				.setAddr(addr1)
+//                .addCar(car1)
+//                .addCar(car2)
+				.addAllCar(cars)
+				.build();
+		System.out.println(p1);
+	}
+}
+
+```
+Output:
+```
+name: "ravi"
+age: 35
+addr {
+postbox: 23
+stret: "Butchaiah thota"
+city: "Guntur"
+}
+car {
+make: "Toyota"
+model: "M32"
+year: 1999
+bodyStyle: COUPE
+}
+car {
+make: "Tomato"
+model: "M35"
+year: 2000
+bodyStyle: SEDAN
+}
+
+```
+Create DealerMapDemo.java to test Dealer obj.
+```
+package in.rk.protobuf;
+
+import in.rk.models.BodyStyle;
+import in.rk.models.Car;
+import in.rk.models.CarOrBuilder;
+import in.rk.models.Dealer;
+
+public class DealerMapDemo {
+	public static void main(String[] args) {
+		Car car1= Car.newBuilder()
+				.setMake("ToYoTo")
+				.setModel("T001")
+				.setYear(1999)
+				.setBodyStyle(BodyStyle.COUPE)
+				.build();
+		Car car2= Car.newBuilder()
+				.setMake("TAYATAo")
+				.setModel("T009")
+				.setYear(2000)
+				.build();
+
+		Dealer dealer= Dealer.newBuilder()
+				.putModel(1999,car1)
+				.putModel(2000,car2)
+				.build();
+
+		System.out.println("dealer.containsModel(2000) :"+dealer.containsModel(2000));
+		System.out.println("dealer.containsModel(2001) :"+dealer.containsModel(2001));
+		System.out.println("dealer.getModelCount() :"+dealer.getModelCount());
+		System.out.println("dealer.getModelMap(): "+dealer.getModelMap());
+		System.out.println(dealer.getModelOrThrow(2000).getBodyStyle());
+
+	}
+}
+```
+Output:
+```
+dealer.containsModel(2000) :true
+dealer.containsModel(2001) :false
+dealer.getModelCount() :2
+dealer.getModelMap(): {1999=make: "ToYoTo"
+model: "T001"
+year: 1999
+bodyStyle: COUPE
+, 2000=make: "TAYATAo"
+model: "T009"
+year: 2000
+}
+UNNOWN
+```
 	21) Proto oneof Demo
 		oneof is a special case one of many(like radio button)
 		
