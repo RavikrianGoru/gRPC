@@ -491,5 +491,372 @@ Protocol Buffer:
 		map<int32,Car> model=1;
 		}
 		----
-	18) 
-	   
+	18) Proto Enum: use enum keyword.
+		1) Create employee.proto in proto directory.
+		----
+		syntax="proto3";
+		option java_multiple_files=true;
+		option java_package="in.rk.models";
+		
+		enum EmpGrade
+		{
+		UNKNOWN=0;
+		AVP=1;
+		VP=2;
+		SVP=3;
+		ED=4;
+		CEO=5;
+		}
+		message Employee
+		{
+		string name=1;
+		EmpGrade emp_grade=2;
+		}		
+	    -----
+		2) Create EmployeeDemo.java
+		-----
+		package in.rk.protobuf;
+
+		import in.rk.models.EmpGrade;
+		import in.rk.models.Employee;
+		
+		public class EmployeeDemo {
+			public static void main(String[] args) {
+				Employee e1= Employee.newBuilder()
+						.setName("Raju")
+						.setEmpGrade(EmpGrade.AVP)
+						.build();
+				System.out.println(e1);
+			}
+		}
+		-----
+		3)
+		o/p:
+			name: "Raju"
+			emp_grade: AVP
+		-----
+	19) Default values:
+		-----------------------------------------
+		int32 / any number 			0
+		bool						false
+		string 						empty string
+		enum						first values
+		repeated 					empty list
+		map							empty map
+		-----------------------------------------
+	
+        Person p=Person.newBuilder().build();
+        System.out.println("p -->:"+p);
+        System.out.println("No Null pointer exception for p.getAddr().getPostbox():"+p.getAddr().getPostbox());
+        System.out.println("Check addr is available in p.hasAddr():"+p.hasAddr());
+		
+	20) Proto Module and importing
+		* Proto files can be packaged and imported.
+		* package keyword
+		* import keyword
+		1) Create "common" package/folder under proto
+		2) Create address.proto, car.proto messages into "common" package as below. move the code here as below.
+		----
+			syntax="proto3"; //indicates to use proto3 syntax.
+			
+			package common;
+			
+			option java_multiple_files=true;
+			option java_package="in.rk.models";
+			
+			message Address
+			{
+			int32 postbox=1;
+			string stret=2;
+			string city=3;
+			}
+		----
+			syntax="proto3"; //indicates to use proto3 syntax.
+			
+			package common;
+			
+			option java_multiple_files=true;
+			option java_package="in.rk.models";
+			
+			message Car
+			{
+			string make=1;
+			string model=2;
+			int32 year=3;
+			BodyStyle bodyStyle=4;
+			}
+			
+			enum BodyStyle
+			{
+				UNKNOWN=0;
+				COUPE=1;
+				SUV=2;
+				SEDAN=3;
+			}
+		----
+			syntax="proto3";
+			option java_multiple_files=true;
+			option java_package="in.rk.models";
+			
+			import "common/address.proto";
+			import "common/car.proto";
+			
+			message Person
+			{
+			string name=1;
+			int32 age=2;
+			common.Address addr=3;
+			repeated common.Car car=4;
+			}
+			
+			message Dealer
+			{
+			map<int32,common.Car> model=1;
+			}
+		----
+		3) Create PersonCompositionDemo.java to create/set Person class object and print.
+		----
+			package in.rk.protobuf;
+			
+			import in.rk.models.Address;
+			import in.rk.models.BodyStyle;
+			import in.rk.models.Car;
+			import in.rk.models.Person;
+			
+			import java.util.ArrayList;
+			
+			public class PersonCompositionDemo {
+				public static void main(String[] args) {
+			
+					Address addr1= Address.newBuilder()
+							.setPostbox(23)
+							.setStret("Butchaiah thota")
+							.setCity("Guntur")
+							.build();
+					//System.out.println(addr1);
+					Car car1= Car.newBuilder()
+							.setMake("Toyota")
+							.setModel("M32")
+							.setYear(1999)
+							.setBodyStyle(BodyStyle.COUPE)
+							.build();
+					//System.out.println(car1);
+					Car car2=Car.newBuilder()
+							.setMake("Tomato")
+							.setModel("M35")
+							.setYear(2000)
+							.setBodyStyle(BodyStyle.SEDAN)
+							.build();
+					//System.out.println(car2);
+					ArrayList<Car> cars=new ArrayList<>();
+					cars.add(car1);
+					cars.add(car2);
+			
+					Person p1= Person.newBuilder()
+							.setName("ravi")
+							.setAge(35)
+							.setAddr(addr1)
+			//                .addCar(car1)
+			//                .addCar(car2)
+							.addAllCar(cars)
+							.build();
+					System.out.println(p1);
+				}
+			}
+		-----
+		4) o/p
+		-----
+			name: "ravi"
+			age: 35
+			addr {
+			postbox: 23
+			stret: "Butchaiah thota"
+			city: "Guntur"
+			}
+			car {
+			make: "Toyota"
+			model: "M32"
+			year: 1999
+			bodyStyle: COUPE
+			}
+			car {
+			make: "Tomato"
+			model: "M35"
+			year: 2000
+			bodyStyle: SEDAN
+			}
+		----
+		5) Create DealerMapDemo.java to test Dealer obj.
+		----
+			package in.rk.protobuf;
+			
+			import in.rk.models.BodyStyle;
+			import in.rk.models.Car;
+			import in.rk.models.CarOrBuilder;
+			import in.rk.models.Dealer;
+			
+			public class DealerMapDemo {
+				public static void main(String[] args) {
+					Car car1= Car.newBuilder()
+							.setMake("ToYoTo")
+							.setModel("T001")
+							.setYear(1999)
+							.setBodyStyle(BodyStyle.COUPE)
+							.build();
+					Car car2= Car.newBuilder()
+							.setMake("TAYATAo")
+							.setModel("T009")
+							.setYear(2000)
+							.build();
+			
+					Dealer dealer= Dealer.newBuilder()
+							.putModel(1999,car1)
+							.putModel(2000,car2)
+							.build();
+			
+					System.out.println("dealer.containsModel(2000) :"+dealer.containsModel(2000));
+					System.out.println("dealer.containsModel(2001) :"+dealer.containsModel(2001));
+					System.out.println("dealer.getModelCount() :"+dealer.getModelCount());
+					System.out.println("dealer.getModelMap(): "+dealer.getModelMap());
+					System.out.println(dealer.getModelOrThrow(2000).getBodyStyle());
+			
+				}
+			}
+		-----
+		6) o/p:
+		-----
+			dealer.containsModel(2000) :true
+			dealer.containsModel(2001) :false
+			dealer.getModelCount() :2
+			dealer.getModelMap(): {1999=make: "ToYoTo"
+			model: "T001"
+			year: 1999
+			bodyStyle: COUPE
+			, 2000=make: "TAYATAo"
+			model: "T009"
+			year: 2000
+			}
+			UNNOWN
+		-----
+	21) Proto oneof Demo
+		oneof is a special case one of many(like radio button)
+		
+		1) Create email-login.proto, phone-login.proto under common
+			----
+			syntax="proto3";
+	
+			option java_multiple_files=true;
+			option java_package="in.rk.models";
+			
+			package common;
+			
+			message EmailLogin
+			{
+			string email_id=1;
+			string password=2;
+			}
+			----
+			syntax="proto3";
+			
+			package common;
+			
+			option java_multiple_files=true;
+			option java_package="in.rk.models";
+			
+			message PhoneLogin
+			{
+			string phone_no=1;
+			string otp=2;
+			}		
+			----
+		2) Create credentials.proto under proto
+			----
+			syntax="proto3";
+			
+			option java_multiple_files=true;
+			option java_package="in.rk.models";
+			
+			import "common/email_login.proto";
+			import "common/phone_login.proto";
+			
+			message Credentials
+			{
+			
+			oneof mode
+			{
+				common.EmailLogin email_login=1;
+				common.PhoneLogin phone_login=2;
+			}
+			}
+			----
+		3) Create OneOfDemoCredentials class to test oneof.
+			----
+			package in.rk.protobuf;
+			
+			import in.rk.models.Credentials;
+			import in.rk.models.EmailLogin;
+			import in.rk.models.PhoneLogin;
+			
+			public class OneOfDemoCredentials {
+				public static void main(String[] args)
+				{
+					EmailLogin emailLogin= EmailLogin.newBuilder()
+							.setEmailId("nobody@gmail.com")
+							.setPassword("admin123")
+							.build();
+					PhoneLogin phoneLogin= PhoneLogin.newBuilder()
+							.setPhoneNo("1234567890")
+							.setOtp("556644")
+							.build();
+					System.out.println(emailLogin);
+					System.out.println(phoneLogin);
+					Credentials cred= Credentials.newBuilder()
+							.setEmailLogin(emailLogin)
+							.setPhoneLogin(phoneLogin)//latest will be taken
+							.build();
+			
+					login(cred);
+				}
+				private static void login(Credentials cred)
+				{
+					System.out.println("Mode Case: "+cred.getModeCase());
+					System.out.println("cred.hasEmailLogin(): "+cred.hasEmailLogin());
+					System.out.println("cred.hasPhoneLogin(): "+cred.hasPhoneLogin());
+					System.out.println("cred.getEmailLogin(): "+cred.getEmailLogin());
+					System.out.println("cred.getPhoneLogin(): "+cred.getPhoneLogin());
+					switch(cred.getModeCase())
+					{
+						case EMAIL_LOGIN:
+							System.out.println(cred.getModeCase()+" : "+cred.getEmailLogin());
+							break;
+						case PHONE_LOGIN:
+							System.out.println(cred.getModeCase()+" : "+cred.getPhoneLogin());
+							break;
+						default:
+							break;
+					}
+				}
+			}
+			----
+		4) o/p:
+			----
+			email_id: "nobody@gmail.com"
+			password: "admin123"
+			
+			phone_no: "1234567890"
+			otp: "556644"
+			
+			Mode Case: PHONE_LOGIN
+			cred.hasEmailLogin(): false
+			cred.hasPhoneLogin(): true
+			cred.getEmailLogin(): 
+			cred.getPhoneLogin(): phone_no: "1234567890"
+			otp: "556644"
+			
+			PHONE_LOGIN : phone_no: "1234567890"
+			otp: "556644"
+			----
+		
+			
+		
+		

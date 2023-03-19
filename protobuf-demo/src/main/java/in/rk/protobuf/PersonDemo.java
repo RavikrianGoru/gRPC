@@ -28,5 +28,11 @@ public class PersonDemo {
 //Deserialize Person
         byte[] bytes = Files.readAllBytes(path);
         System.out.println("Deserialized Data:"+Person.parseFrom(bytes));
+
+// Default value
+        Person p=Person.newBuilder().build();
+        System.out.println("p -->:"+p);
+        System.out.println("No Null pointer exception for p.getAddr().getPostbox():"+p.getAddr().getPostbox());
+        System.out.println("Check addr is available in p.hasAddr():"+p.hasAddr());
     }
 }

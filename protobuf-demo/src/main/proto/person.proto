@@ -1,31 +1,19 @@
-syntax="proto3"; //indicates to use proto3 syntax.
+syntax="proto3";
 option java_multiple_files=true;
 option java_package="in.rk.models";
 
-
-message Address
-{
-  int32 postbox=1;
-  string stret=2;
-  string city=3;
-}
-
-message Car
-{
-  string make=1;
-  string model=2;
-  int32 year=3;
-}
+import "common/address.proto";
+import "common/car.proto";
 
 message Person
 {
   string name=1;
   int32 age=2;
-  Address addr=3;
-  repeated Car car=4;
+  common.Address addr=3;
+  repeated common.Car car=4;
 }
 
 message Dealer
 {
-  map<int32,Car> model=1;
+  map<int32,common.Car> model=1;
 }
