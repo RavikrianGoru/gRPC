@@ -40,7 +40,7 @@
 	            Strict typing, DTO, Service definition, Language-agnostic,
 	            Auto-Generated binding for multiple languages. 
 	            Great for Mobile apps.
-### gRPC bs Rest
+### gRPC vs Rest
 	REST : architecture style, resource oriented(Book,Person....), [ JSON + HTTP1.1 ]
 	gRPC: A RPC f/w, more flexible & action oriented, specific to inter-service communication.
 
@@ -342,8 +342,8 @@ age: 30
 
 8. Protobuf vs Jackson (Performance Test)
 ```
-    We will test both Proto Person and JPerson by serializing and deserializing. 
-	Check the time taken  for both. Create JPerson.java with same field in person.proto such as name,age.
+We will test both Proto Person and JPerson by serializing and deserializing. 
+Check the time taken  for both. Create JPerson.java with same field in person.proto such as name,age.
 ```
 ```
 package in.rk.protobuf.models;
@@ -443,7 +443,7 @@ Method :JACKSON Total Time:1215
 Method :PROTO Total Time:211
 ```
 
-9. adding comments in .proto file: same like java 
+9. Adding comments in .proto file: same like java 
 ```
 // inline comments
 /*
@@ -455,8 +455,6 @@ Method :PROTO Total Time:211
 ```
 person.proto file is available in src/main/proto/. & protoc compiler is available in target/protoc-plugin/.
 Run the below command will get the error as below.
-RC: some issue with protoc-3.21.1 version:
-Downgrade to 3.19.0 in pom.xml then rerun.
 ```
 Error:
 ```
@@ -465,6 +463,11 @@ $ ../../../target/protoc-plugins/protoc-3.21.1-windows-x86_64.exe --js_out=./ *.
 operable program or batch file.
 --js_out: protoc-gen-js: Plugin failed with status code 1.
 ```
+```
+Root Cause: some issue with protoc-3.21.1 version:
+Downgrade to 3.19.0 in pom.xml then rerun.
+```
+
 Commands to generate client libs:
 ```
 $ ../../../target/protoc-plugins/protoc-3.19.0-windows-x86_64.exe --js_out=./ *.proto
@@ -542,8 +545,10 @@ message Dealer
 
 ```
 
-15. Proto Enum: use enum keyword.
-1. Create employee.proto in proto directory.
+15. Proto Enum: use ```enum``` keyword.
+
+Create employee.proto in ```proto``` directory.
+
 ```
 syntax="proto3";
 
@@ -564,44 +569,49 @@ message Employee
 	string name=1;
 	EmpGrade emp_grade=2;
 }		
-```	
-	    -----
-		2) Create EmployeeDemo.java
-		-----
-		package in.rk.protobuf;
-
-		import in.rk.models.EmpGrade;
-		import in.rk.models.Employee;
-		
-		public class EmployeeDemo {
-			public static void main(String[] args) {
-				Employee e1= Employee.newBuilder()
-						.setName("Raju")
-						.setEmpGrade(EmpGrade.AVP)
-						.build();
-				System.out.println(e1);
-			}
-		}
-		-----
-		3)
-		o/p:
-			name: "Raju"
-			emp_grade: AVP
-		-----
-	19) Default values:
-		-----------------------------------------
-		int32 / any number 			0
-		bool						false
-		string 						empty string
-		enum						first values
-		repeated 					empty list
-		map							empty map
-		-----------------------------------------
+```
 	
-        Person p=Person.newBuilder().build();
-        System.out.println("p -->:"+p);
-        System.out.println("No Null pointer exception for p.getAddr().getPostbox():"+p.getAddr().getPostbox());
-        System.out.println("Check addr is available in p.hasAddr():"+p.hasAddr());
+Create EmployeeDemo.java
+```
+package in.rk.protobuf;
+
+import in.rk.models.EmpGrade;
+import in.rk.models.Employee;
+
+public class EmployeeDemo {
+	public static void main(String[] args) {
+		Employee e1= Employee.newBuilder()
+				.setName("Raju")
+				.setEmpGrade(EmpGrade.AVP)
+				.build();
+		System.out.println(e1);
+	}
+}
+
+```
+Output:
+```
+name: "Raju"
+emp_grade: AVP
+
+```
+16. Default values
+
+| data type | default value|
+| ----------------|-----------------|
+| int32 / any number |		0 |
+| bool	| false |
+| string | empty string |
+| enum	| first values |
+| repeated 	|	empty list |
+| map	|	empty map |
+
+```
+Person p=Person.newBuilder().build();
+System.out.println("p -->:"+p);
+System.out.println("No Null pointer exception for p.getAddr().getPostbox():"+p.getAddr().getPostbox());
+System.out.println("Check addr is available in p.hasAddr():"+p.hasAddr());
+```	
 		
 	20) Proto Module and importing
 		* Proto files can be packaged and imported.
