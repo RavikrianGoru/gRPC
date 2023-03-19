@@ -20,16 +20,26 @@ message Television2
 }
 
 //v3- brand(string),size(int32)
-//removed make
+//removed size: improper way: wrong
 message Television3
 {
   string brand=1;
-  int32 size=2;
+  int32 made=2;
 }
 
-//v4- brand(string),size(int32),make(int32),price(int32)
-//added price
+//v4- brand(string),size(int32)
+//removed size: Proper way
 message Television4
+{
+  string brand=1;
+  reserved 2;
+  reserved "size";
+  int32 made=3;
+}
+
+//v5- brand(string),size(int32),make(int32),price(int32)
+//added price
+message Television5
 {
   string brand=1;
   int32 size=2;
@@ -37,9 +47,9 @@ message Television4
   int32 price=4;
 }
 
-//v5- brand(string),size(string),make(int32)
+//v6- brand(string),size(string),make(int32)
 // type change for size(int32 to string)
-message Television5
+message Television6
 {
   string brand=1;
   string size=2;

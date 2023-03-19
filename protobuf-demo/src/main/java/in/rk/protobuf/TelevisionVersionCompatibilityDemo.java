@@ -30,19 +30,24 @@ public class TelevisionVersionCompatibilityDemo {
         System.out.println("Television2 v2:"+t12);
 
         System.out.println("//v3- brand(string),size(int32)");
-        System.out.println("//remove make");
+        System.out.println("//removed size: improper way: wrong");
         Television3 t13= Television3.parseFrom(bytes);
         System.out.println("Television3 v3:"+t13);
 
-        System.out.println("//v4- brand(string),size(int32),make(int32),price(int32)");
-        System.out.println("//added price");
+        System.out.println("//v4- brand(string),size(int32)");
+        System.out.println("//remove size:Proper way");
         Television4 t14= Television4.parseFrom(bytes);
         System.out.println("Television4 v4:"+t14);
 
-        System.out.println("//v5- brand(string),size(string),make(int32)");
-        System.out.println("// type change for size(int32 to string)");// incompatable types but it gives output 2:22 unable to map size.
+        System.out.println("//v5- brand(string),size(int32),make(int32),price(int32)");
+        System.out.println("//added price");
         Television5 t15= Television5.parseFrom(bytes);
         System.out.println("Television5 v5:"+t15);
+
+        System.out.println("//v6- brand(string),size(string),make(int32)");
+        System.out.println("// type change for size(int32 to string)");// incompatable types but it gives output 2:22 unable to map size.
+        Television6 t16= Television6.parseFrom(bytes);
+        System.out.println("Television6 v6:"+t16);
 
 
     }

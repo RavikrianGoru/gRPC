@@ -943,16 +943,26 @@ Protocol Buffer:
 			}
 			
 			//v3- brand(string),size(int32)
-			//removed make
+			//removed size: improper way: wrong
 			message Television3
 			{
 			  string brand=1;
-			  int32 size=2;
+			  int32 made=2;
 			}
 			
-			//v4- brand(string),size(int32),make(int32),price(int32)
-			//added price
+			//v4- brand(string),size(int32)
+			//removed size: Proper way
 			message Television4
+			{
+			  string brand=1;
+			  reserved 2;
+			  reserved "size";
+			  int32 made=3;
+			}
+			
+			//v5- brand(string),size(int32),make(int32),price(int32)
+			//added price
+			message Television5
 			{
 			  string brand=1;
 			  int32 size=2;
@@ -960,9 +970,9 @@ Protocol Buffer:
 			  int32 price=4;
 			}
 			
-			//v5- brand(string),size(string),make(int32)
+			//v6- brand(string),size(string),make(int32)
 			// type change for size(int32 to string)
-			message Television5
+			message Television6
 			{
 			  string brand=1;
 			  string size=2;
@@ -1003,19 +1013,24 @@ Protocol Buffer:
 			        System.out.println("Television2 v2:"+t12);
 			
 			        System.out.println("//v3- brand(string),size(int32)");
-			        System.out.println("//remove make");
+			        System.out.println("//removed size: improper way: wrong");
 			        Television3 t13= Television3.parseFrom(bytes);
 			        System.out.println("Television3 v3:"+t13);
 			
-			        System.out.println("//v4- brand(string),size(int32),make(int32),price(int32)");
-			        System.out.println("//added price");
+			        System.out.println("//v4- brand(string),size(int32)");
+			        System.out.println("//remove size:Proper way");
 			        Television4 t14= Television4.parseFrom(bytes);
 			        System.out.println("Television4 v4:"+t14);
 			
-			        System.out.println("//v5- brand(string),size(string),make(int32)");
-			        System.out.println("// type change for size(int32 to string)");// incompatable types but it gives output 2:22 unable to map size.
+			        System.out.println("//v5- brand(string),size(int32),make(int32),price(int32)");
+			        System.out.println("//added price");
 			        Television5 t15= Television5.parseFrom(bytes);
 			        System.out.println("Television5 v5:"+t15);
+			
+			        System.out.println("//v6- brand(string),size(string),make(int32)");
+			        System.out.println("// type change for size(int32 to string)");// incompatable types but it gives output 2:22 unable to map size.
+			        Television6 t16= Television6.parseFrom(bytes);
+			        System.out.println("Television6 v6:"+t16);
 			
 			
 			    }
@@ -1035,22 +1050,28 @@ Protocol Buffer:
 			made: 2000
 			
 			//v3- brand(string),size(int32)
-			//remove make
+			//removed size: improper way: wrong
 			Television3 v3:brand: "Sony"
-			size: 22
+			made: 22
 			3: 2000
 			
-			//v4- brand(string),size(int32),make(int32),price(int32)
-			//added price
+			//v4- brand(string),size(int32)
+			//remove size:Proper way
 			Television4 v4:brand: "Sony"
+			made: 2000
+			2: 22
+			
+			//v5- brand(string),size(int32),make(int32),price(int32)
+			//added price
+			Television5 v5:brand: "Sony"
 			size: 22
 			make: 2000
 			
-			//v5- brand(string),size(string),make(int32)
+			//v6- brand(string),size(string),make(int32)
 			// type change for size(int32 to string)
-			Television5 v5:brand: "Sony"
+			Television6 v6:brand: "Sony"
 			make: 2000
 			2: 22
 		----		
-		
+	25) 	
 		
