@@ -12,6 +12,7 @@
         <module>bank-proto</module>
         <module>bank-service</module>
         <module>bank-server</module>
+        <module>bank-client</module>
     </modules>
 
     <packaging>pom</packaging>

@@ -428,3 +428,61 @@ public class GrpcServer {
 }
 ```
 4. Run ```mvn clean install```
+
+### 4. bank-client module
+1. Right click on ```gRPC``` project --> New --> Module --> Maven-archtype-quickstart --> bank-client -->next --> Finish
+2. Add ```bank-service``` , ```grpc-netty-shaded``` dependencies in  ```pom.xml```
+3. Create BlockingGrpcClient.java to interact with server.
+```
+package in.rk.bank.client;
+
+import in.rk.bank.models.BalanceCheckRequest;
+import in.rk.bank.services.BankServiceGrpc;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusRuntimeException;
+
+public class BlockingGrpcClient {
+
+    public static void main(String[] args) {
+        ManagedChannel managedChannel = ManagedChannelBuilder
+                .forAddress("localhost", 6565)
+                .usePlaintext()
+                .build();
+
+        BankServiceGrpc.BankServiceBlockingStub blockingStub =BankServiceGrpc.newBlockingStub(managedChannel);
+
+        //1 Unary
+        BalanceCheckRequest balanceRequest= BalanceCheckRequest.newBuilder().setAccountNumber(7).build();
+        balanceCheckUnary(blockingStub,balanceRequest);
+
+    }
+
+    private static void balanceCheckUnary(BankServiceGrpc.BankServiceBlockingStub blockingStub, BalanceCheckRequest balanceRequest) {
+        try {
+            System.out.println("Received Response:" + blockingStub.checkBalance(balanceRequest));
+        }catch (StatusRuntimeException e)
+        {
+            System.err.println("Known Error while checking balance:"+e);
+        }catch (Exception e)
+        {
+            System.err.println("Unknown Error while checkig balance"+e);
+        }
+    }
+}
+```
+4. Run ```mvn clean install```
+
+### Testing-1 : bank-client
+1. start Server:  bank-server--> GrpcServer:main(-)
+2. Send request from Client: bank-client-->BlockingGrpcClient:main(-)--balanceCheckUnary(-,-)
+
+If server is up
+```
+Received Response:amount: 70
+```
+If server is down
+```
+Known Error while checking balance:io.grpc.StatusRuntimeException: UNAVAILABLE: io exception
+```
+### Testing-2 : Postman client
