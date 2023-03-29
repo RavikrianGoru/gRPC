@@ -486,3 +486,17 @@ If server is down
 Known Error while checking balance:io.grpc.StatusRuntimeException: UNAVAILABLE: io exception
 ```
 ### Testing-2 : Postman client
+```
+Open Postman Desktop
+Sign in with gmail--> Collection-->new-->gRPC Request--> 
+Enter Server URL: localhost:6565
+select method: Import a .proto file [select bank-services.proto file]
++Add an import path [src/main/proto]
+Next
+Import as API
+Now select method: choose checkBalance
+Click on Message
+Click Use Example Message
+Update message
+Invoke
+```
