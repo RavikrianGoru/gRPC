@@ -1,4 +1,4 @@
-# gRPC Introduction
+# Introduction
 
 ### Problem Statement
     Monolithic applications:
