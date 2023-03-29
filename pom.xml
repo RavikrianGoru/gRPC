@@ -11,6 +11,7 @@
         <module>protobuf-demo</module>
         <module>bank-proto</module>
         <module>bank-service</module>
+        <module>bank-server</module>
     </modules>
 
     <packaging>pom</packaging>

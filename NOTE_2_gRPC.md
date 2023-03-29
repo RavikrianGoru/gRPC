@@ -366,3 +366,65 @@ public class BankService extends BankServiceGrpc.BankServiceImplBase{
 }
 ```
 5. Run ```mvn clean install```
+
+### 3. bank-server module
+1. Right click on ```gRPC``` project --> New --> Module --> Maven-archtype-quickstart --> bank-server -->next --> Finish
+2. Add ```bank-service``` , ```grpc-netty-shaded``` dependencies in  ```pom.xml```
+```
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>gRPC</artifactId>
+        <groupId>in.rk</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>bank-server</artifactId>
+
+    <name>bank-server</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>in.rk</groupId>
+            <artifactId>bank-service</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty-shaded</artifactId>
+            <version>1.49.0</version>
+        </dependency>
+    </dependencies>
+</project>
+```
+3. Create ```GrpcServer.java``` class to build, configure port, service.
+```
+package in.rk.bank.server;
+
+import in.rk.bank.service.BankService;
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
+
+import java.io.IOException;
+
+public class GrpcServer {
+    public static void main(String[] args) throws IOException, InterruptedException {
+        Server grpcServer = ServerBuilder.forPort(6565)
+                                         .addService(new BankService())
+                                         .build();
+        grpcServer.start();
+        System.out.println("Server is started with BankService!");
+        grpcServer.awaitTermination();
+    }
+}
+```
+4. Run ```mvn clean install```
