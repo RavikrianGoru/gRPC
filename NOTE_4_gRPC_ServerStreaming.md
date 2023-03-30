@@ -47,22 +47,8 @@ option java_package="in.rk.bank.services";
 package services;
 import "models/balance-check-request.proto";
 import "models/balance-check-response.proto";
-
-
-service BankService
-{
-  rpc checkBalance(models.BalanceCheckRequest) returns (models.BalanceCheckResponse);
-syntax="proto3";
-
-option java_multiple_files=true;
-option java_package="in.rk.bank.services";
-
-package services;
-import "models/balance-check-request.proto";
-import "models/balance-check-response.proto";
 import "models/balance-withdraw-request.proto";
 import "models/balance-withdraw-response.proto";
-
 
 service BankService
 {
