@@ -41,5 +41,5 @@ hs_err_pid*
 .idea
 *.iml
 .idea/*
-*/*.iml
-*/*/*.iml
+**/*.iml
+
