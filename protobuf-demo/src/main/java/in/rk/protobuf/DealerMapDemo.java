@@ -2,7 +2,6 @@ package in.rk.protobuf;
 
 import in.rk.models.BodyStyle;
 import in.rk.models.Car;
-import in.rk.models.CarOrBuilder;
 import in.rk.models.Dealer;
 
 public class DealerMapDemo {

@@ -1,6 +1,5 @@
 package in.rk.protobuf;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.InvalidProtocolBufferException;
 import in.rk.models.Person;

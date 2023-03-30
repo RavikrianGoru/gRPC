@@ -6,9 +6,15 @@ option java_package="in.rk.bank.services";
 package services;
 import "models/balance-check-request.proto";
 import "models/balance-check-response.proto";
+import "models/balance-withdraw-request.proto";
+import "models/balance-withdraw-response.proto";
 
 
 service BankService
 {
+  //1. Unary
   rpc checkBalance(models.BalanceCheckRequest) returns (models.BalanceCheckResponse);
+
+  //2. Server side streaming
+  rpc withdraw (models.BalanceWithdrawRequest) returns (stream models.BalanceWithdrawResponse);
 }

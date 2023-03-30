@@ -29,4 +29,15 @@ public class AccountDB {
         return accountsMap.computeIfPresent(accountNumber, (k, v) -> v - amount);
     }
 
+    public static boolean isRequestedAmountAvailable(int accountNbr, int amount)
+    {
+        boolean results=false;
+        if(isAccountAvailable(accountNbr))
+        {
+            if(getBalance(accountNbr)>=amount)
+                results=true;
+        }
+        return results;
+    }
+
 }
