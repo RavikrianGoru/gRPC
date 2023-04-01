@@ -7,6 +7,7 @@
 
 * [gRPC Introduction](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_2_gRPC_Introduction.md)
 * [gRPC Unary](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_3_gRPC_Unary.md)
-* [gRPC Server Streaming](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_4_gRPC_ServerStreaming.md)
+* [gRPC Server Streaming (Sync)](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_4_gRPC_ServerStreamingSynchronous.md)
+* [gRPC Server Streaming (Async)](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_4_gRPC_ServerStreamingAsynchronous.md)
 * [gRPC Client Streaming](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_5_gRPC_ClientStreaming.md)
 * [gRPC BiDirectionalStreaming](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_6_gRPC_BiDirectionalStreaming.md)
