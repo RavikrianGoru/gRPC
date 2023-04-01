@@ -1,12 +1,15 @@
 package in.rk.bank.client;
 
 import com.google.common.util.concurrent.Uninterruptibles;
+import in.rk.bank.client.streamobservers.BalanceDepositResponseStreamObserver;
 import in.rk.bank.client.streamobservers.BalanceWithdrawResponseStreamObserver;
+import in.rk.bank.models.BalanceDepositRequest;
 import in.rk.bank.models.BalanceWithdrawRequest;
 import in.rk.bank.service.BankService;
 import in.rk.bank.services.BankServiceGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.stub.StreamObserver;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -20,10 +23,31 @@ public class AsyncGrpcClient {
                 .build();
         BankServiceGrpc.BankServiceStub asyncStub=BankServiceGrpc.newStub(managedChannel);
 
-
         //1. Async withdraw through :BankServiceGrpc.BankServiceStub
-        BalanceWithdrawRequest req=BalanceWithdrawRequest.newBuilder().setAccountNumber(8).setAmount(50).build();
-        balanceWithdrawServerStreamingAsync(asyncStub, req);
+        //BalanceWithdrawRequest req=BalanceWithdrawRequest.newBuilder().setAccountNumber(8).setAmount(50).build();
+        //balanceWithdrawServerStreamingAsync(asyncStub, req);
+
+        //2. Async deposit through :BankServiceGrpc.BankServiceStub
+        BalanceDepositRequest depositReq= BalanceDepositRequest.newBuilder().setAccountNumber(7).setAmount(50).build();
+        depositAsyncClientStreaming(asyncStub, depositReq);
+    }
+
+    private static void depositAsyncClientStreaming(BankServiceGrpc.BankServiceStub asyncStub, BalanceDepositRequest depositReq) {
+
+        CountDownLatch latch =new CountDownLatch(1);
+        StreamObserver<BalanceDepositRequest> depositReqObserver = asyncStub.deposit(new BalanceDepositResponseStreamObserver(latch));
+        for(int i=1;i<=5;i++)
+        {
+            System.out.println("Each stream of request:"+depositReq);
+            Uninterruptibles.sleepUninterruptibly(3,TimeUnit.SECONDS);
+            depositReqObserver.onNext(depositReq);
+        }
+        depositReqObserver.onCompleted();
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void balanceWithdrawServerStreamingAsync(BankServiceGrpc.BankServiceStub asyncStub, BalanceWithdrawRequest req) {
