@@ -1,4 +1,5 @@
 # gRPC Unary
+Client sends single request and server sends single response back.
 
 ### gRPC project setup ( IntelliJ )
 1) bank-proto module: proto messages & grpc services

@@ -1,0 +1,23 @@
+syntax="proto3";
+
+option java_multiple_files=true;
+option java_package="in.rk.bank.models";
+
+package models;
+
+message TransferResponse
+{
+  TransferStatus status=1;
+  repeated Account accounts=2;
+}
+
+enum TransferStatus
+{
+  FAILED=0;
+  SUCCESS=1;
+}
+message Account
+{
+  int32 account_number=1;
+  int32 amount=2;
+}

@@ -10,6 +10,8 @@ import "models/balance-withdraw-request.proto";
 import "models/balance-withdraw-response.proto";
 import "models/balance-deposit-request.proto";
 import "models/balance-deposit-response.proto";
+import "models/transfer-request.proto";
+import "models/transfer-response.proto";
 
 
 service BankService
@@ -22,4 +24,7 @@ service BankService
 
   //3. Client side streaming
   rpc deposit(stream models.BalanceDepositRequest) returns (models.BalanceDepositResponse);
+
+  //4. BiDirectional streaming
+  rpc transfer(stream models.TransferRequest) returns (stream models.TransferResponse);
 }

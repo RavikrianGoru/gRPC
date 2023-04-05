@@ -4,6 +4,7 @@ import in.rk.bank.db.AccountDB;
 import in.rk.bank.models.*;
 import in.rk.bank.services.BankServiceGrpc;
 import in.rk.bank.streamobserver.BalanceDepositRequestStreamObserver;
+import in.rk.bank.streamobserver.TransferRequestStreamObserver;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 
@@ -55,5 +56,10 @@ public class BankService extends BankServiceGrpc.BankServiceImplBase {
     @Override
     public StreamObserver<BalanceDepositRequest> deposit(StreamObserver<BalanceDepositResponse> responseObserver) {
         return new BalanceDepositRequestStreamObserver(responseObserver);
+    }
+
+    @Override
+    public StreamObserver<TransferRequest> transfer(StreamObserver<TransferResponse> responseObserver) {
+        return new TransferRequestStreamObserver(responseObserver);
     }
 }

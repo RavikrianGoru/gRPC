@@ -1,4 +1,5 @@
 # gRPC Server Streaming(Non-Blocking Client or Asynchronous Client)
+Client sends single request and server sends multiple response back (non-blocking/async way).
 
 ### 1. Update bank-client module
 ```

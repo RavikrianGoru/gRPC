@@ -1,4 +1,5 @@
 # gRPC Server Streaming(Blocking Client or Synchronous Client)
+Client sends single request and server sends multiple response back (blocking/sync way).
 
 ### gRPC project Setup ( IntelliJ )
 1) bank-proto module: proto messages & grpc services

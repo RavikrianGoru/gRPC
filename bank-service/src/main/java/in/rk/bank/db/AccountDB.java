@@ -39,5 +39,9 @@ public class AccountDB {
         }
         return results;
     }
+    public  static void printAccounts()
+    {
+        System.out.println(accountsMap);
+    }
 
 }
