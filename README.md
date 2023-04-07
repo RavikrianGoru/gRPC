@@ -11,3 +11,5 @@
 * [gRPC Server Streaming (Async)](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_4_gRPC_ServerStreamingAsynchronous.md)
 * [gRPC Client Streaming](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_5_gRPC_ClientStreaming.md)
 * [gRPC BiDirectionalStreaming](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_6_gRPC_BiDirectionalStreaming.md)
+* [gRPC Snake Ladder Game](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_7_gRPC_SnakeLadderGame.md)
+* [gRPC Snake Ladder Game Code](https://github.com/RavikrianGoru/gRPC/tree/main/snake-ladder)

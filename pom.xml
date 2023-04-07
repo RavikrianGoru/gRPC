@@ -13,6 +13,7 @@
         <module>bank-service</module>
         <module>bank-server</module>
         <module>bank-client</module>
+        <module>snake-ladder</module>
     </modules>
 
     <packaging>pom</packaging>
