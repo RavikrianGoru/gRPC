@@ -1251,3 +1251,251 @@ public class LaptopServerTest {
 
 }
 ```
+
+### Server Streaming
+1. Create ```filter_message.proto```
+```
+syntax="proto3";
+package rk.pcbook;
+option java_multiple_files=true;
+option java_package="in.rk.pcbook.models";
+
+import "memory_message.proto";
+
+message Filter
+{
+  double max_price_usd=1;
+  uint32 min_cpu_cores=2;
+  double min_cpu_ghz=3;
+  Memory min_ram=4;
+
+}
+```
+2. Update  ```laptop_service.proto``` with below messages and rpc call.
+```
+message SearchLaptopRequest
+{
+  Filter filter =1;
+}
+message SearchLaptopResponse
+{
+  Laptop laptop=1;
+}
+
+service LaptopService
+{
+   ...
+   ...
+  //2. Server Streaming
+  rpc searchLaptop(SearchLaptopRequest) returns (stream SearchLaptopResponse){};
+}
+```
+
+3. Do mvn clean install
+
+4. Add new method declaration in ```LaptopStore``` interface
+```
+    void search(Filter filter, LaptopStream stream);
+```
+5. Create new Funcational interface ```LaptopStream```
+```
+package in.rk.pcbook.service.database;
+
+import in.rk.pcbook.models.Laptop;
+
+@FunctionalInterface
+public interface LaptopStream {
+    void send(Laptop laptop);
+}
+```
+
+6. Implement search method in ```InMemoryLaptopStore```
+```
+    @Override
+    public void search(Filter filter, LaptopStream stream) {
+        for (Map.Entry<String, Laptop> entry : data.entrySet()) {
+            Laptop lap = entry.getValue();
+            if (isQualified(filter, lap)) {
+                stream.send(lap.toBuilder().build());
+            }
+        }
+    }
+
+    private boolean isQualified(Filter filter, Laptop lap) {
+        if (lap.getPriceUsd() > filter.getMaxPriceUsd()) {
+            return false;
+        }
+        if (lap.getCpu().getNumberCores() < filter.getMinCpuCores()) {
+            return false;
+        }
+        if (lap.getCpu().getMinGhz() < filter.getMinCpuGhz()) {
+            return false;
+        }
+        if (toBit(lap.getRam()) < toBit(filter.getMinRam())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private long toBit(Memory ram) {
+        long value = ram.getValue();
+        switch (ram.getUnit()) {
+            case BIT:
+                return value;
+            case BYTE:
+                return value << 3; //1 BYTE = 8 BITS, 2^3
+            case KILOBYTE:
+                return value << 13;//1 kb = 1024 bytes, 2^10, 1kb=2^10 * 2^3 bits
+            case GIGABYTE:
+                return value << 23;
+            case MEGABYTE:
+                return value << 33;
+            case TERABYTE:
+                return value << 43;
+            default:
+                return 0;
+
+        }
+    }
+```
+7. Override ```searchLaptop``` method in LaptopService
+```
+    @Override
+    public void searchLaptop(SearchLaptopRequest request, StreamObserver<SearchLaptopResponse> responseObserver) {
+        Filter filter = request.getFilter();
+        log.info("Got search-laptop with filter:"+filter);
+        laptopStore.search(filter, new LaptopStream() {
+            @Override
+            public void send(Laptop laptop) {
+                log.info("Found laptop with ID:"+laptop.getId());
+                SearchLaptopResponse resp = SearchLaptopResponse.newBuilder().setLaptop(laptop).build();
+                responseObserver.onNext(resp);
+            }
+        });
+
+        responseObserver.onCompleted();
+        log.info("Search laptop is completed");
+    }
+
+```
+8. Update the LaptopClient
+```
+package in.rk.pcbook.client;
+
+import in.rk.pcbook.models.Filter;
+import in.rk.pcbook.models.Laptop;
+import in.rk.pcbook.models.Memory;
+import in.rk.pcbook.sample.Generator;
+import in.rk.pcbook.services.*;
+import in.rk.pcbook.services.LaptopServiceGrpc.LaptopServiceBlockingStub;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+
+import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class LaptopClient {
+
+    private static final Logger log = Logger.getLogger(LaptopClient.class.getName());
+    private final ManagedChannel channel;
+    private final LaptopServiceBlockingStub blockingStub;
+
+    public LaptopClient(String host, int port) {
+        channel = ManagedChannelBuilder.forAddress(host, port)
+                .usePlaintext()
+                .build();
+        blockingStub = LaptopServiceGrpc.newBlockingStub(channel);
+    }
+
+    public void shoutdown() throws InterruptedException {
+        channel.awaitTermination(5, TimeUnit.SECONDS);
+    }
+
+    public void createLaptop(Laptop laptop) {
+        CreateLaptopRequest req = CreateLaptopRequest.newBuilder().setLaptop(laptop).build();
+        CreateLaptopResponse resp = CreateLaptopResponse.getDefaultInstance();
+        try {
+//            resp = blockingStub.createLaptop(req);
+            resp = blockingStub.withDeadlineAfter(10, TimeUnit.SECONDS).createLaptop(req);
+        } catch (StatusRuntimeException e) {
+            if (e.getStatus().getCode() == Status.Code.ALREADY_EXISTS) {
+                log.info("Laptop Id is already exist.");
+                return;
+            }
+            log.log(Level.SEVERE, "Request failed:" + e.getMessage());
+            return;
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Request failed:" + e.getMessage());
+            return;
+        }
+        log.info("Laptop is created with id:" + resp.getId());
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        LaptopClient laptopClient = new LaptopClient("0.0.0.0", 8089);
+        Generator generator = new Generator();
+        //1.
+        laptopClient.unaryCall(laptopClient, generator);
+        //2.
+        laptopClient.serverStreaming(laptopClient, generator);
+    }
+
+    private  void serverStreaming(LaptopClient laptopClient, Generator generator) throws InterruptedException {
+        try {
+            for (int i = 0; i < 10; i++) {
+                Laptop laptop = generator.newLaptop();
+                laptopClient.createLaptop(laptop);
+            }
+
+            Memory ram= Memory.newBuilder()
+                    .setValue(8)
+                    .setUnit(Memory.Unit.GIGABYTE)
+                    .build();
+            Filter filter = Filter.newBuilder()
+                    .setMaxPriceUsd(3000)
+                    .setMinCpuCores(4)
+                    .setMinCpuGhz(2.5)
+                    .setMinRam(ram)
+                    .build();
+            laptopClient.searchLaptop(filter);
+
+        } catch (Exception e) {
+            laptopClient.shoutdown();
+        }
+    }
+
+    private  void searchLaptop(Filter filter) {
+        log.info("Start started");
+        SearchLaptopRequest req= SearchLaptopRequest.newBuilder().setFilter(filter).build();
+        Iterator<SearchLaptopResponse> respItr = blockingStub.searchLaptop(req);
+        while(respItr.hasNext())
+        {
+            SearchLaptopResponse next = respItr.next();
+            Laptop eachLap=next.getLaptop();
+            log.info("Each laptop id:"+eachLap.getId());
+        }
+        log.info("Search is completed");
+    }
+
+    private  void unaryCall(LaptopClient laptopClient, Generator generator) throws InterruptedException {
+        Laptop laptop = generator.newLaptop();
+        //Laptop laptop = generator.newLaptop().toBuilder().setId("").build();
+        //Laptop laptop = generator.newLaptop().toBuilder().setId("be6049df-f803-4513-bd6a-100d6ec0f56e").build();
+        //Laptop laptop = generator.newLaptop().toBuilder().setId("invalid").build();
+
+        try {
+            laptopClient.createLaptop(laptop);
+        } catch (Exception e) {
+            laptopClient.shoutdown();
+        }
+    }
+}
+
+```
+9.Test it by running server & client
+10. Keep sleep logic in 

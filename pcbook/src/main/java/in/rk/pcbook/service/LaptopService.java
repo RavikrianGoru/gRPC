@@ -1,11 +1,11 @@
 package in.rk.pcbook.service;
 
+import in.rk.pcbook.models.Filter;
 import in.rk.pcbook.models.Laptop;
 import in.rk.pcbook.service.database.LaptopStore;
+import in.rk.pcbook.service.database.LaptopStream;
 import in.rk.pcbook.service.database.exception.AlreadyExistsException;
-import in.rk.pcbook.services.CreateLaptopRequest;
-import in.rk.pcbook.services.CreateLaptopResponse;
-import in.rk.pcbook.services.LaptopServiceGrpc;
+import in.rk.pcbook.services.*;
 import io.grpc.Context;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
@@ -93,5 +93,22 @@ public class LaptopService extends LaptopServiceGrpc.LaptopServiceImplBase
         responseObserver.onNext(resp);
         responseObserver.onCompleted();
         log.info("Saved laptop with ID :"+other.getId());
+    }
+
+    @Override
+    public void searchLaptop(SearchLaptopRequest request, StreamObserver<SearchLaptopResponse> responseObserver) {
+        Filter filter = request.getFilter();
+        log.info("Got search-laptop with filter:"+filter);
+        laptopStore.search(Context.current(), filter, new LaptopStream() {
+            @Override
+            public void send(Laptop laptop) {
+                log.info("Found laptop with ID:"+laptop.getId());
+                SearchLaptopResponse resp = SearchLaptopResponse.newBuilder().setLaptop(laptop).build();
+                responseObserver.onNext(resp);
+            }
+        });
+
+        responseObserver.onCompleted();
+        log.info("Search laptop is completed");
     }
 }

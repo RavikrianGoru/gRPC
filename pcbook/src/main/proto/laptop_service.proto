@@ -3,6 +3,7 @@ package rk.pcbook;
 option java_multiple_files=true;
 option java_package="in.rk.pcbook.services";
 import "laptop_message.proto";
+import "filter_message.proto";
 
 message CreateLaptopRequest
 {
@@ -12,7 +13,21 @@ message CreateLaptopResponse
 {
   string id=1;
 }
+
+message SearchLaptopRequest
+{
+  Filter filter =1;
+}
+message SearchLaptopResponse
+{
+  Laptop laptop=1;
+}
+
 service LaptopService
 {
+  //1. Unary
   rpc createLaptop(CreateLaptopRequest) returns (CreateLaptopResponse){};
+
+  //2. Server Streaming
+  rpc searchLaptop(SearchLaptopRequest) returns (stream SearchLaptopResponse){};
 }
