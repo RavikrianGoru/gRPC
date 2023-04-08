@@ -14,6 +14,7 @@
         <module>bank-server</module>
         <module>bank-client</module>
         <module>snake-ladder</module>
+        <module>pcbook</module>
     </modules>
 
     <packaging>pom</packaging>

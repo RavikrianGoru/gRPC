@@ -1,0 +1,57 @@
+{
+  "id": "",
+  "brand": "Dell",
+  "name": "Inspiron",
+  "cpu": {
+    "brand": "AMD",
+    "name": "Ryzen 5",
+    "number_cores": 4,
+    "number_threads": 12,
+    "min_ghz": 2.6954242855151005,
+    "max_ghz": 4.540656319785038
+  },
+  "ram": {
+    "value": "21",
+    "unit": "GIGABYTE"
+  },
+  "gpus": [{
+    "brand": "AMD",
+    "name": "RX 580",
+    "min_ghz": 1.3805796697987047,
+    "max_ghz": 1.8388786842050522,
+    "memory": {
+      "value": "5",
+      "unit": "GIGABYTE"
+    }
+  }],
+  "storages": [{
+    "driver": "SSD",
+    "memory": {
+      "value": "508",
+      "unit": "GIGABYTE"
+    }
+  }, {
+    "driver": "HDD",
+    "memory": {
+      "value": "3",
+      "unit": "TERABYTE"
+    }
+  }],
+  "screen": {
+    "size_inche": 14.521891,
+    "resolution": {
+      "width": 4295,
+      "height": 2416
+    },
+    "panel": "OLED",
+    "multitouch": false
+  },
+  "keyboard": {
+    "layout": "QWERTZ",
+    "backlit": true
+  },
+  "weigh_kg": 1.9850491631058793,
+  "price_usd": 3435.4986790677312,
+  "release_year": 2018,
+  "updated_at": "2023-04-07T22:38:19.315907600Z"
+}

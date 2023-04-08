@@ -1,0 +1,18 @@
+syntax="proto3";
+package rk.pcbook;
+option java_multiple_files=true;
+option java_package="in.rk.pcbook.services";
+import "laptop_message.proto";
+
+message CreateLaptopRequest
+{
+  Laptop laptop=1;
+}
+message CreateLaptopResponse
+{
+  string id=1;
+}
+service LaptopService
+{
+  rpc createLaptop(CreateLaptopRequest) returns (CreateLaptopResponse){};
+}
