@@ -13,3 +13,4 @@
 * [gRPC BiDirectionalStreaming](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_6_gRPC_BiDirectionalStreaming.md)
 * [gRPC Snake Ladder Game](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_7_gRPC_SnakeLadderGame.md)
 * [gRPC Snake Ladder Game Code](https://github.com/RavikrianGoru/gRPC/tree/main/snake-ladder)
+* [gRPC Channel & Load Balancing](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_8_gRPC_ChannelAndLoadBalancing.md)
