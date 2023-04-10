@@ -1,4 +1,4 @@
-package in.rk.bank.client.loadbalancing;
+package in.rk.bank.client.loadbalancing.serverside;
 
 import com.google.common.util.concurrent.Uninterruptibles;
 import in.rk.bank.models.BalanceCheckRequest;

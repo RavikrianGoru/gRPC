@@ -158,3 +158,355 @@ Kill cmd
 
 ### Testing
 start Nginx, Servers(1 & 2) Client
+
+
+Sub Channels:
+```
+A channel can have many sub chaannels. Each sub channel represents a connecion to the server.
+Channel chooses subchannel in round robin fashion(not default).
+Pick first, round robin strategy. 
+```
+
+
+### Client side load balancing
+```
+the client is aware of multiple backend servers and chooses one to use for each RPC. 
+Usually, the backend servers register themselves with a service discovery infrastructure, such as Consul or Etcd.
+It is fastr than server-side load balancing.
+
+No proxy between client & server in client side load balancing.
+Client should know the all IP addresses of server instances.
+
+How the client get to know the IP addresses of server instances?
+    Required service registery (Consul or Etcd)
+    The services (server instances) on startup register themself in service-registery.
+
+How client handles multiple IP addresses  in ManagedChannel?
+    The concept called subchannel will help.
+    gRPC SubChannel: 
+    A Channel can have many subchannels. Each sub channel represents a connection to the server.
+    Channel chosses the sub channels in round robbin fashion(not default). [pick-first strategy by default]
+```
+
+```
+A thick client implements the load balancing algorithms itself. 
+For example, in a simple configuration, where the server load is not considered, the client can just round-robin between available servers.
+```
+```
+a look-aside load balancer, 
+where the load balancing smarts are implemented in a special load-balancing server. 
+Clients query the look-aside load balancer to get the best server(s) to use. 
+The heavy lifting of keeping server state, service discovery, and implementation of a load balancing 
+algorithm is consolidated in the look-aside load balancer.
+```
+* Learn Pub & Sub model.
+
+### Code changes in bank-client
+
+1. Create ServiceRegistry.java 
+```
+package in.rk.bank.client.loadbalancing.clientside.serv_reg;
+
+import io.grpc.EquivalentAddressGroup;
+
+import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class ServiceRegistry {
+    private static  final Map<String, List<EquivalentAddressGroup>> SER_REG_MAP=new HashMap<>();
+
+    public static void register(String service, List<String> instances)
+    {
+        List<EquivalentAddressGroup> equivalentAddressGroups
+                =instances.stream()
+                .map(a->a.split(":"))
+                .map(a->new InetSocketAddress(a[0],Integer.parseInt(a[1])))
+                .map(EquivalentAddressGroup::new)
+                .collect(Collectors.toList());
+        SER_REG_MAP.put(service,equivalentAddressGroups);
+    }
+
+    public static List<EquivalentAddressGroup> getYnstance(String service)
+    {
+        return SER_REG_MAP.get(service);
+    }
+}
+
+```
+2. Create TempNameResolver.java
+```
+package in.rk.bank.client.loadbalancing.clientside.serv_reg;
+
+import io.grpc.NameResolver;
+
+public class TempNameResolver  extends NameResolver {
+    private final String service;
+
+    public TempNameResolver(String service) {
+        this.service = service;
+    }
+
+    @Override
+    public String getServiceAuthority() {
+        return "temp";
+    }
+
+    @Override
+    public void start(Listener2 listener) {
+        System.out.println(this.getClass().getName()+"start.......");
+        ResolutionResult resolutionResult = ResolutionResult
+                .newBuilder()
+                .setAddresses(ServiceRegistry.getYnstance(this.service))
+                .build();
+        listener.onResult(resolutionResult);
+    }
+
+    @Override
+    public void shutdown() {
+
+    }
+
+    @Override
+    public void refresh() {
+        System.out.println(this.getClass().getName()+"refresh.......");
+        super.refresh();
+    }
+}
+
+```
+3.  Create TempNameResolverProvider.java 
+```
+package in.rk.bank.client.loadbalancing.clientside.serv_reg;
+
+import io.grpc.NameResolver;
+import io.grpc.NameResolverProvider;
+
+import java.net.URI;
+
+public class TempNameResolverProvider extends NameResolverProvider
+{
+    @Override
+    protected boolean isAvailable() {
+        return true;
+    }
+
+    @Override
+    protected int priority() {
+        return 5;
+    }
+
+    @Override
+    public NameResolver newNameResolver(URI targetUri, NameResolver.Args args) {
+        System.out.println("looking for service:"+targetUri.getAuthority());
+        return new TempNameResolver(targetUri.getAuthority());
+    }
+
+    @Override
+    public String getDefaultScheme() {
+        return "grpc";//return "http";
+    }
+}
+
+```
+4.  Create BlockingGrpcClientSideLB.java 
+```
+package in.rk.bank.client.loadbalancing.clientside;
+
+import com.google.common.util.concurrent.Uninterruptibles;
+import in.rk.bank.client.loadbalancing.clientside.serv_reg.ServiceRegistry;
+import in.rk.bank.client.loadbalancing.clientside.serv_reg.TempNameResolverProvider;
+import in.rk.bank.models.BalanceCheckRequest;
+import in.rk.bank.models.BalanceWithdrawRequest;
+import in.rk.bank.models.BalanceWithdrawResponse;
+import in.rk.bank.services.BankServiceGrpc;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.NameResolverRegistry;
+import io.grpc.StatusRuntimeException;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+public class BlockingGrpcClientSideLB {
+
+    public static void main(String[] args) {
+        //Register
+        ServiceRegistry.register("bank-service", List.of("localhost:6565","localhost:7575") );
+        NameResolverRegistry.getDefaultRegistry().register(new TempNameResolverProvider());
+
+        ManagedChannel managedChannel = ManagedChannelBuilder
+                //.forAddress("localhost", 8585)
+                .forTarget("grpc://bank-service")//.forTarget("http://bank-service")
+                .defaultLoadBalancingPolicy("round_robin")
+                .usePlaintext()
+                .build();
+
+        BankServiceGrpc.BankServiceBlockingStub blockingStub = BankServiceGrpc.newBlockingStub(managedChannel);
+
+        //1 Unary
+        System.out.println("================:Blocking stub Unary RPC :==============");
+        balanceCheckUnaryForMultipleTimes(blockingStub);
+
+        //2. Server side streaming
+//        System.out.println("================:Blocking stub Server side streaming  RPC :==============");
+//        BalanceWithdrawRequest balanceWithdrawRequest = BalanceWithdrawRequest.newBuilder().setAccountNumber(9).setAmount(50).build();
+//        balanceWithdrawServerStreaming(blockingStub, balanceWithdrawRequest);
+    }
+
+    private static void balanceCheckUnaryForMultipleTimes(BankServiceGrpc.BankServiceBlockingStub blockingStub) {
+        try {
+            for(int j=0;j<=2;j++) {
+                for (int i = 1; i <= 10; i++) {
+                    Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
+                    BalanceCheckRequest balanceRequest = BalanceCheckRequest.newBuilder().setAccountNumber(i).build();
+                    System.out.println("Received Response:" + blockingStub.checkBalance(balanceRequest));
+                }
+            }
+        } catch (StatusRuntimeException e) {
+            System.err.println("Known Error while checking balance:" + e);
+        } catch (Exception e) {
+            System.err.println("Unknown Error while checkig balance" + e);
+        }
+    }
+
+    private static void balanceWithdrawServerStreaming(BankServiceGrpc.BankServiceBlockingStub blockingStub, BalanceWithdrawRequest balanceWithdrawRequest) {
+        BalanceWithdrawResponse resp = null;
+        BalanceWithdrawResponse finalResp = BalanceWithdrawResponse.newBuilder().setAmount(0).build();
+
+        try {
+            //1.
+            //blockingStub.withdraw(balanceWithdrawRequest).forEachRemaining(eachResp->System.out.println(eachResp));
+
+            //2.
+            Iterator<BalanceWithdrawResponse> itr = blockingStub.withdraw(balanceWithdrawRequest);
+            while (itr.hasNext()) {
+                resp = itr.next();
+                System.out.println("Streaming Response:" + resp);
+                finalResp = finalResp.toBuilder().setAmount(finalResp.toBuilder().getAmount() + resp.getAmount()).build();
+            }
+            System.out.println("Final Response:" + finalResp);
+        } catch (StatusRuntimeException e) {
+            System.err.println("Known Error which withdraw:" + e);
+        } catch (Exception e) {
+            System.err.println("Unknown Error which withdraw:" + e);
+        }
+    }
+
+
+}
+
+```
+5.  Create AsyncGrpcClientSideLB.java
+```
+package in.rk.bank.client.loadbalancing.clientside;
+
+import com.google.common.util.concurrent.Uninterruptibles;
+import in.rk.bank.client.loadbalancing.clientside.serv_reg.ServiceRegistry;
+import in.rk.bank.client.loadbalancing.clientside.serv_reg.TempNameResolverProvider;
+import in.rk.bank.client.streamobservers.BalanceDepositResponseStreamObserver;
+import in.rk.bank.client.streamobservers.BalanceWithdrawResponseStreamObserver;
+import in.rk.bank.client.streamobservers.TransferResponseStreamObserver;
+import in.rk.bank.models.BalanceDepositRequest;
+import in.rk.bank.models.BalanceWithdrawRequest;
+import in.rk.bank.models.TransferRequest;
+import in.rk.bank.services.BankServiceGrpc;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.NameResolverRegistry;
+import io.grpc.stub.StreamObserver;
+
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+
+public class AsyncGrpcClientSideLB {
+
+    public static void main(String[] args) {
+        //Register
+        ServiceRegistry.register("bank-service", List.of("localhost:6565","localhost:7575") );
+        NameResolverRegistry.getDefaultRegistry().register(new TempNameResolverProvider());
+
+        ManagedChannel managedChannel= ManagedChannelBuilder
+                //.forAddress("localhost",8585)
+                .forTarget("grpc://bank-service")//.forTarget("http://bank-service")
+                .defaultLoadBalancingPolicy("round_robin")
+                .usePlaintext()
+                .build();
+        BankServiceGrpc.BankServiceStub asyncStub=BankServiceGrpc.newStub(managedChannel);
+
+        //1. Async withdraw through :BankServiceGrpc.BankServiceStub
+        System.out.println("==================Async Server streaming RPC============");
+        BalanceWithdrawRequest req=BalanceWithdrawRequest.newBuilder().setAccountNumber(9).setAmount(50).build();
+        balanceWithdrawServerStreamingAsync(asyncStub, req);
+
+        //2. Async deposit through :BankServiceGrpc.BankServiceStub
+        System.out.println("==================Async Client streaming RPC============");
+        BalanceDepositRequest depositReq= BalanceDepositRequest.newBuilder().setAccountNumber(7).setAmount(50).build();
+        depositAsyncClientStreaming(asyncStub, depositReq);
+
+        //4. Async transfer through :BankServiceGrpc.BankServiceStub
+        System.out.println("==================Async Bidirectional streaming RPC============");
+        transferAsyncBiDirectional(asyncStub);
+    }
+
+    private static void transferAsyncBiDirectional(BankServiceGrpc.BankServiceStub asyncStub) {
+        CountDownLatch latch=new CountDownLatch(1);
+        TransferResponseStreamObserver transferResponseStreamObserver=new TransferResponseStreamObserver(latch);
+        StreamObserver<TransferRequest> transferRequestStreamObserver=asyncStub.transfer(transferResponseStreamObserver);
+
+        for(int i=1; i<=5;i++)
+        {
+            TransferRequest eachReq= TransferRequest.newBuilder()
+                    .setFromAccount(ThreadLocalRandom.current().nextInt(1,11))
+                    .setToAccount(ThreadLocalRandom.current().nextInt(1,11))
+                    .setAmount(5)
+                    .build();
+            transferRequestStreamObserver.onNext(eachReq);
+        }
+        transferRequestStreamObserver.onCompleted();
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private static void depositAsyncClientStreaming(BankServiceGrpc.BankServiceStub asyncStub, BalanceDepositRequest depositReq) {
+
+        CountDownLatch latch =new CountDownLatch(1);
+        StreamObserver<BalanceDepositRequest> depositReqObserver = asyncStub.deposit(new BalanceDepositResponseStreamObserver(latch));
+        for(int i=1;i<=5;i++)
+        {
+            System.out.println("Each stream of request:"+depositReq);
+            Uninterruptibles.sleepUninterruptibly(3,TimeUnit.SECONDS);
+            depositReqObserver.onNext(depositReq);
+        }
+        depositReqObserver.onCompleted();
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void balanceWithdrawServerStreamingAsync(BankServiceGrpc.BankServiceStub asyncStub, BalanceWithdrawRequest req) {
+        CountDownLatch latch =new CountDownLatch(1);
+        asyncStub.withdraw(req,new BalanceWithdrawResponseStreamObserver(latch));
+        //Uninterruptibles.sleepUninterruptibly(3, TimeUnit.SECONDS);
+        try
+        {
+            latch.await();
+        }catch(InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+    }
+}
+
+``` 
