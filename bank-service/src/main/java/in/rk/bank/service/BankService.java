@@ -11,6 +11,7 @@ import io.grpc.stub.StreamObserver;
 public class BankService extends BankServiceGrpc.BankServiceImplBase {
     @Override
     public void checkBalance(BalanceCheckRequest request, StreamObserver<BalanceCheckResponse> responseObserver) {
+        System.out.println("---BankService.checkBalance---:"+request.getAccountNumber());
         if (AccountDB.isAccountAvailable(request.getAccountNumber())) {
             BalanceCheckResponse balanceCheckResponse = BalanceCheckResponse.newBuilder()
                     .setAmount(AccountDB.getBalance(request.getAccountNumber()))
@@ -26,6 +27,7 @@ public class BankService extends BankServiceGrpc.BankServiceImplBase {
 
     @Override
     public void withdraw(BalanceWithdrawRequest request, StreamObserver<BalanceWithdrawResponse> responseObserver) {
+        System.out.println("---BankService.withdraw---:"+request.getAccountNumber());
         int accountNbr = request.getAccountNumber();
         int amount = request.getAmount();
         int finalBalance = AccountDB.getBalance(accountNbr);
@@ -55,11 +57,13 @@ public class BankService extends BankServiceGrpc.BankServiceImplBase {
 
     @Override
     public StreamObserver<BalanceDepositRequest> deposit(StreamObserver<BalanceDepositResponse> responseObserver) {
+        System.out.println("---BankService.deposit---");
         return new BalanceDepositRequestStreamObserver(responseObserver);
     }
 
     @Override
     public StreamObserver<TransferRequest> transfer(StreamObserver<TransferResponse> responseObserver) {
+        System.out.println("---BankService.transfer---");
         return new TransferRequestStreamObserver(responseObserver);
     }
 }

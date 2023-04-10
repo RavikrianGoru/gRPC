@@ -21,11 +21,13 @@ public class BlockingGrpcClient {
         BankServiceGrpc.BankServiceBlockingStub blockingStub = BankServiceGrpc.newBlockingStub(managedChannel);
 
         //1 Unary
+        System.out.println("================:Blocking stub Unary RPC :==============");
         BalanceCheckRequest balanceRequest = BalanceCheckRequest.newBuilder().setAccountNumber(8).build();
         balanceCheckUnary(blockingStub, balanceRequest);
 
         //2. Server side streaming
-        BalanceWithdrawRequest balanceWithdrawRequest = BalanceWithdrawRequest.newBuilder().setAccountNumber(7).setAmount(50).build();
+        System.out.println("================:Blocking stub Server side streaming  RPC :==============");
+        BalanceWithdrawRequest balanceWithdrawRequest = BalanceWithdrawRequest.newBuilder().setAccountNumber(8).setAmount(50).build();
         balanceWithdrawServerStreaming(blockingStub, balanceWithdrawRequest);
     }
 

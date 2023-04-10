@@ -1,8 +1,17 @@
 # Protocol Buffer
 
 	IDL (Interface Description Language for gRPC API. Like WSDL for SOAP....etc
-	Platform Neutral, Language Neutral, Serializing/Deserializing structured data, very fast/optimized for inter-service communication.
+	Platform Neutral, Language Neutral, Serializing/Deserializing structured data in a forward & backward compatible way.
+	Like JSON, except t's smaller & faster & it generates native language bining. 
+	Very fast/optimized for inter-service communication.
 	Provides client libraries automatically for many languages(jva,C++,JavaScript,Go,Ruby,C#,Python...etc)
+Advantages of Protocol Buffer
+```
+- Compact data storage
+- Fast parsing
+- Availability in many programming languages
+-  Optimized functionality through automatically-generated classes
+```
 
 ### Protobuf dependencies
 
@@ -556,6 +565,22 @@ emp_grade: AVP
 | enum	| first values |
 | repeated 	|	empty list |
 | map	|	empty map |
+
+
+Common Types
+```
+Duration is a signed, fixed-length span of time, such as 42s.
+Timestamp is a point in time independent of any time zone or calendar, such as 2017-01-15T01:30:15.01Z.
+Interval is a time interval independent of time zone or calendar, such as 2017-01-15T01:30:15.01Z - 2017-01-16T02:30:15.01Z.
+Date is a whole calendar date, such as 2025-09-19.
+DayOfWeek is a day of the week, such as Monday.
+TimeOfDay is a time of day, such as 10:42:23.
+LatLng is a latitude/longitude pair, such as 37.386051 latitude and -122.083855 longitude.
+Money is an amount of money with its currency type, such as 42 USD.
+PostalAddress is a postal address, such as 1600 Amphitheatre Parkway Mountain View, CA 94043 USA.
+Color is a color in the RGBA color space.
+Month is a month of the year, such as April.
+```
 
 ```
 Person p=Person.newBuilder().build();

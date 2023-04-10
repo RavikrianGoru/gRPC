@@ -7,7 +7,6 @@ import in.rk.bank.client.streamobservers.TransferResponseStreamObserver;
 import in.rk.bank.models.BalanceDepositRequest;
 import in.rk.bank.models.BalanceWithdrawRequest;
 import in.rk.bank.models.TransferRequest;
-import in.rk.bank.service.BankService;
 import in.rk.bank.services.BankServiceGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -27,14 +26,17 @@ public class AsyncGrpcClient {
         BankServiceGrpc.BankServiceStub asyncStub=BankServiceGrpc.newStub(managedChannel);
 
         //1. Async withdraw through :BankServiceGrpc.BankServiceStub
-        //BalanceWithdrawRequest req=BalanceWithdrawRequest.newBuilder().setAccountNumber(8).setAmount(50).build();
-        //balanceWithdrawServerStreamingAsync(asyncStub, req);
+        System.out.println("==================Async Server streaming RPC============");
+        BalanceWithdrawRequest req=BalanceWithdrawRequest.newBuilder().setAccountNumber(9).setAmount(50).build();
+        balanceWithdrawServerStreamingAsync(asyncStub, req);
 
         //2. Async deposit through :BankServiceGrpc.BankServiceStub
-        //BalanceDepositRequest depositReq= BalanceDepositRequest.newBuilder().setAccountNumber(7).setAmount(50).build();
-        //depositAsyncClientStreaming(asyncStub, depositReq);
+        System.out.println("==================Async Client streaming RPC============");
+        BalanceDepositRequest depositReq= BalanceDepositRequest.newBuilder().setAccountNumber(7).setAmount(50).build();
+        depositAsyncClientStreaming(asyncStub, depositReq);
 
-        //3. Async transfer through :BankServiceGrpc.BankServiceStub
+        //4. Async transfer through :BankServiceGrpc.BankServiceStub
+        System.out.println("==================Async Bidirectional streaming RPC============");
         transferAsyncBiDirectional(asyncStub);
     }
 
