@@ -8,6 +8,7 @@ import in.rk.bank.models.BalanceDepositRequest;
 import in.rk.bank.models.BalanceWithdrawRequest;
 import in.rk.bank.models.TransferRequest;
 import in.rk.bank.services.BankServiceGrpc;
+import io.grpc.Deadline;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
@@ -24,6 +25,8 @@ public class AsyncGrpcClient {
                 .usePlaintext()
                 .build();
         BankServiceGrpc.BankServiceStub asyncStub=BankServiceGrpc.newStub(managedChannel);
+        //asyncStub=asyncStub.withDeadline(Deadline.after(3,TimeUnit.SECONDS));
+        //asyncStub=asyncStub.withDeadlineAfter(3,TimeUnit.SECONDS);
 
         //1. Async withdraw through :BankServiceGrpc.BankServiceStub
         System.out.println("==================Async Server streaming RPC============");

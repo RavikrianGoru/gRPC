@@ -4,11 +4,13 @@ import in.rk.bank.models.BalanceCheckRequest;
 import in.rk.bank.models.BalanceWithdrawRequest;
 import in.rk.bank.models.BalanceWithdrawResponse;
 import in.rk.bank.services.BankServiceGrpc;
+import io.grpc.Deadline;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 
 public class BlockingGrpcClient {
 
@@ -19,6 +21,8 @@ public class BlockingGrpcClient {
                 .build();
 
         BankServiceGrpc.BankServiceBlockingStub blockingStub = BankServiceGrpc.newBlockingStub(managedChannel);
+        //blockingStub=blockingStub.withDeadline(Deadline.after(3, TimeUnit.SECONDS));
+        //blockingStub=blockingStub.withDeadlineAfter(3,TimeUnit.SECONDS);
 
         //1 Unary
         System.out.println("================:Blocking stub Unary RPC :==============");
