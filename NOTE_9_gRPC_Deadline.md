@@ -1,7 +1,7 @@
 ### Deadline:
 ```
 Client sends the request to server wait for the response back from server.
-If client can not receive response form server due to any issue (n/w, more load on server,...) clinet has to wait for some time 
+If client can not receive response from server due to any issue (n/w, more load on server,...) clinet has to wait for some time 
 then give Exception.
 ```
 
