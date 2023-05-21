@@ -1,0 +1,15 @@
+syntax="proto3";
+
+option java_multiple_files=true;
+option java_package="in.rk.cal.services";
+
+package services;
+import "models/request.proto";
+import "models/response.proto";
+
+service CalService
+{
+  //1. Unary
+  rpc getSquare(models.Request) returns (models.Response);
+
+}
