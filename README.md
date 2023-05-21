@@ -15,4 +15,6 @@
 * [gRPC Snake Ladder Game Code](https://github.com/RavikrianGoru/gRPC/tree/main/snake-ladder)
 * [gRPC Channel & Load Balancing](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_8_gRPC_ChannelAndLoadBalancing.md)
 * [gRPC Deadline & Context.current().isCancelled()](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_9_gRPC_Deadline.md)
+* [gRPC Interceptor](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_10_gRPC_Interceptor)
+
 
