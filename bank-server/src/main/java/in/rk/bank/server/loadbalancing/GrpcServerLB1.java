@@ -13,6 +13,13 @@ public class GrpcServerLB1 {
                                          .build();
         grpcServer.start();
         System.out.println("Server is started with BankService!");
+
+        //shutdown hook
+        Runtime.getRuntime().addShutdownHook(new Thread(()->{
+            System.out.println("gRPC server is shutting down!");
+            grpcServer.shutdown();
+        }));
+
         grpcServer.awaitTermination();
     }
 }

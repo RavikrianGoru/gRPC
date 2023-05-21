@@ -14,6 +14,13 @@ public class GrpcServerContext {
                                          .build();
         grpcServer.start();
         System.out.println("Server is started with BankServiceMetadata!");
+
+        //shutdown hook
+        Runtime.getRuntime().addShutdownHook(new Thread(()->{
+            System.out.println("gRPC server is shutting down!");
+            grpcServer.shutdown();
+        }));
+
         grpcServer.awaitTermination();
     }
 }

@@ -14,6 +14,13 @@ public class GrpcServerDeadline {
                                          .build();
         grpcServer.start();
         System.out.println("Server is started with BankServiceDeadline!");
+
+        //shutdown hook
+        Runtime.getRuntime().addShutdownHook(new Thread(()->{
+            System.out.println("gRPC server is shutting down!");
+            grpcServer.shutdown();
+        }));
+
         grpcServer.awaitTermination();
     }
 }
