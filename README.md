@@ -17,6 +17,7 @@
 * [gRPC Deadline & Context.current().isCancelled()](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_9_gRPC_Deadline.md)
 * [gRPC Interceptor](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_10_gRPC_Interceptor.md)
 * [gRPC Error Handling](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_11_gRPC_ErrorHandling_Via_Metadata.md)
+* [openSSL & certs generation](https://github.com/RavikrianGoru/gRPC/blob/main/NOTE_12_OpenSSL_Install_CA_certs_Generation.md)
 
 
 
