@@ -15,6 +15,7 @@
         <module>bank-client</module>
         <module>snake-ladder</module>
         <module>grpcErrorHandling</module>
+        <module>grp-flix</module>
     </modules>
 
     <packaging>pom</packaging>
