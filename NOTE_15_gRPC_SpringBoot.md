@@ -34,143 +34,87 @@ I. grp-flix : is maven (pom packaging) project
     1b) user-service: spring boot project 
     1c) movie-service: spring boot grpc project 
     1d) aggregator-service: spring boot web project
-``` 
-1. Create maven project ```grp-flix``` : has modules only.
-pom.xml
+II) start user-service module.
+    2a) Open BloomRPC--> load proto file
+    2b) Click on UserService.getUserGenre method
+        localhost:6565
+    input: {
+             "login_id": "ragoru"
+           }
+    output: {
+              "login_id": "ragoru",
+              "name": "Ravi",
+              "genre": "ACTION"
+            }
+    2c) Click on UserService.updateUserGenre method
+        localhost:6565
+    input: {
+             "login_id": "ragoru",
+             "genre": "LOVE"
+           }
+    output: {
+              "login_id": "ragoru",
+              "name": "Ravi",
+              "genre": "LOVE"
+            }
+III) start movie-service module.
+    3a) Open BloomRPC--> load proto file
+    3b) Click on MovieService.getMovie method
+        localhost:7575
+    input: {
+             "genre": "LOVE"
+           }
+    output: {
+              "movies": [
+                {
+                  "title": "Raj",
+                  "year": 1997,
+                  "rating": 1997
+                },
+                {
+                  "title": "HeMan",
+                  "year": 1981,
+                  "rating": 1981
+                },
+                {
+                  "title": "Baalu",
+                  "year": 1974,
+                  "rating": 1974
+                }
+              ]
+            }
+    
 ```
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<packaging>pom</packaging>
-
-	<groupId>in.rk</groupId>
-	<artifactId>grp-flix</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>grp-flix</name>
-	<description>Demo project for Spring Boot</description>
-
-	 <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-    </properties>
-
-	<modules>
-		<module>gflix-proto</module>
-		<module>user-service</module>
-		<module>movie-service</module>
-		<module>aggregator-service</module>
-	</modules>
-
-</project>
-```
-2. Create gflix-proto: module under grp-flix: It is normal maven module.
-pom.xml
-```
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<artifactId>grp-flix</artifactId>
-		<groupId>in.rk</groupId>
-		<version>0.0.1-SNAPSHOT</version>
-	</parent>
-
-	<groupId>in.rk</groupId>
-	<artifactId>gflix-proto</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-
-	<name>gflix-proto</name>
-	<!-- FIXME change it to the project's website -->
-	<url>http://www.example.com</url>
-
-	<dependencies>
-		<!-- To generate language specific compiled Classes for message... -->
-		<dependency>
-			<groupId>io.grpc</groupId>
-			<artifactId>grpc-protobuf</artifactId>
-			<version>1.49.0</version>
-		</dependency>
-
-		<!-- Used to compile time to generate stub -->
-		<dependency>
-			<groupId>io.grpc</groupId>
-			<artifactId>grpc-stub</artifactId>
-			<version>1.49.0</version>
-		</dependency>
-
-		<!-- to handle grpc http calls -->
-		<!-- Commented as not dealing with http calls <dependency> <groupId>io.grpc</groupId> 
-			<artifactId>grpc-netty-shaded</artifactId> <version>1.49.0</version> </dependency> -->
-		<!-- Required if we use java 9 or above -->
-		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>annotations-api</artifactId>
-			<version>6.0.53</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<!-- To handle Json mappings json to java & java to json -->
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>2.13.3</version>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.11</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
-
-	<build>
-        <extensions>
-            <extension>
-                <groupId>kr.motd.maven</groupId>
-                <artifactId>os-maven-plugin</artifactId>
-                <version>1.6.2</version>
-            </extension>
-        </extensions>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>11</source>
-                    <target>11</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.xolstice.maven.plugins</groupId>
-                <artifactId>protobuf-maven-plugin</artifactId>
-                <version>0.6.1</version>
-                <configuration>
-                    <protocArtifact>
-                        com.google.protobuf:protoc:3.19.0:exe:${os.detected.classifier}
-                    </protocArtifact>
-                    <pluginId>grpc-java</pluginId>
-                    <pluginArtifact>
-                        io.grpc:protoc-gen-grpc-java:1.49.0:exe:${os.detected.classifier}
-                    </pluginArtifact>
-                    <protoSourceRoot>
-                        ${basedir}/src/main/proto/
-                    </protoSourceRoot>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                            <goal>compile-custom</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-</project>
-```
-3. 
+IV) start aggregator-service module.
+    4) all 3 modules are started
+    4a) Open Postman Client
+        GET:  localhost:8080/user/ragoru 
+        output:
+            [
+                {
+                    "title": "Raj",
+                    "year": 1997,
+                    "rating": 1997.0
+                },
+                {
+                    "title": "HeMan",
+                    "year": 1981,
+                    "rating": 1981.0
+                },
+                {
+                    "title": "Baalu",
+                    "year": 1974,
+                    "rating": 1974.0
+                }
+            ]
+    4b) 
+        PUT:    localhost:8080/user
+        Select: Body, raw, JSON
+        Body:
+            {
+                "loginId":"ragoru",
+                "genre":"LOVE"
+            }
+        output: 200 OK
+        
+            
